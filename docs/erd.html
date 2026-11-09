@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ERD Diagram - PoS Kasir MoonCafe</title>
+  <!-- Mermaid.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    mermaid.initialize({ 
+      startOnLoad: true,
+      theme: 'neutral',
+      securityLevel: 'loose'
+    });
+  </script>
+</head>
+<body class="bg-slate-100 min-h-screen p-8 text-slate-800">
+  <div class="max-w-6xl mx-auto bg-white rounded-3xl shadow-xl p-8 border border-slate-200">
+    <div class="border-b border-slate-200 pb-5 mb-6 flex justify-between items-center">
+      <div>
+        <h1 class="text-2xl font-black text-slate-900 tracking-tight">Entity Relationship Diagram (ERD)</h1>
+        <p class="text-sm text-slate-500 font-medium">Proyek UKK 2026 - PoS Kasir MoonCafe (SMK Telkom Purwokerto)</p>
+      </div>
+      <span class="px-4 py-1.5 rounded-full text-xs font-bold bg-amber-100 text-amber-900 border border-amber-300">
+        Standar BNSP J.620100.004.02
+      </span>
+    </div>
+
+    <!-- Container Diagram Mermaid -->
+    <div class="mermaid overflow-x-auto flex justify-center py-4">
+erDiagram
+    KATEGORI ||--o{ PRODUK : "1:M (Memiliki)"
+    PETUGAS ||--o{ TRANSAKSI : "1:M (Melayani)"
+    MEMBERS ||--o{ TRANSAKSI : "1:M (Melakukan - Opsional)"
+    TRANSAKSI ||--|{ DETAIL_TRANSAKSI : "1:M (Memiliki)"
+    PRODUK ||--o{ DETAIL_TRANSAKSI : "1:M (Dipesan dalam)"
+
+    PETUGAS {
+        int id_petugas PK
+        varchar nama_petugas
+        varchar username UK
+        varchar password
+        enum role "admin, kasir"
+    }
+
+    MEMBERS {
+        int id_member PK
+        varchar kode_member UK
+        varchar nama_member
+        varchar no_telp
+        int poin_loyalitas
+        date tgl_bergabung
+    }
+
+    KATEGORI {
+        int id_kategori PK
+        varchar nama_kategori
+    }
+
+    PRODUK {
+        int id_produk PK
+        int id_kategori FK
+        varchar nama_produk
+        text deskripsi "Komposisi dan alergen"
+        decimal harga
+        int stok
+        varchar gambar
+    }
+
+    TRANSAKSI {
+        int id_transaksi PK
+        varchar nomor_nota UK
+        datetime tgl_transaksi
+        int id_petugas FK
+        int id_member FK
+        enum tipe_pesanan "dine_in, take_away"
+        decimal subtotal
+        decimal diskon_tier_persen
+        decimal diskon_member_persen
+        decimal total_diskon_nominal
+        decimal dpp
+        decimal pajak_10_persen
+        decimal grand_total
+        decimal bayar
+        decimal kembalian
+    }
+
+    DETAIL_TRANSAKSI {
+        int id_detail PK
+        int id_transaksi FK
+        int id_produk FK
+        int qty
+        decimal harga_satuan
+        decimal subtotal_item
+    }
+
+    PENGATURAN_STRUK {
+        int id PK
+        varchar nama_resto
+        varchar alamat
+        varchar no_telepon
+        text pesan_footer
+    }
+    </div>
+
+    <!-- Ringkasan Relasi Kardinalitas -->
+    <div class="mt-8 pt-6 border-t border-slate-200 grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+      <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200">
+        <h3 class="font-bold text-slate-900 mb-2">Relasi One-to-Many (1 : M):</h3>
+        <ul class="space-y-1 text-slate-600 list-disc list-inside">
+          <li><strong>KATEGORI → PRODUK:</strong> 1 Kategori memiliki banyak menu produk.</li>
+          <li><strong>PETUGAS → TRANSAKSI:</strong> 1 Kasir melayani banyak transaksi penjualan.</li>
+          <li><strong>MEMBERS → TRANSAKSI:</strong> 1 Member dapat berbelanja berkali-kali (opsional, bisa NULL jika non-member).</li>
+          <li><strong>TRANSAKSI → DETAIL_TRANSAKSI:</strong> 1 Transaksi mencakup banyak item rincian pesanan.</li>
+        </ul>
+      </div>
+
+      <div class="p-4 rounded-2xl bg-amber-50 border border-amber-200">
+        <h3 class="font-bold text-amber-950 mb-2">Relasi Many-to-Many (M : M):</h3>
+        <p class="text-amber-800 leading-relaxed">
+          Relasi antara <strong>TRANSAKSI</strong> dan <strong>PRODUK</strong> adalah <em>Many-to-Many</em> yang dihubungkan melalui tabel perantara <strong>DETAIL_TRANSAKSI</strong>. Hal ini memastikan harga histori pembelian tetap terjaga meskipun harga master produk berubah di kemudian hari.
+        </p>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
+

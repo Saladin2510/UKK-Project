@@ -1,0 +1,2109 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MoonCafe - Layar Kasir POS</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+          },
+          colors: {
+            sidebarBg: '#182234',
+            canvasBg: '#eef2f6',
+            accentOrange: '#ff6900',
+            accentOrangeHover: '#e05d00',
+            badgeYellow: '#fef08a'
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      background-color: #eef2f6;
+    }
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    ::-webkit-scrollbar {
+      width: 5px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #f8fafc;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 4px;
+    }
+
+    @media print {
+      body * {
+        visibility: hidden;
+      }
+      #printArea, #printArea * {
+        visibility: visible;
+      }
+      #printArea {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 58mm;
+        margin: 0;
+        padding: 5mm;
+      }
+    }
+  </style>
+</head>
+<body class="font-sans h-screen w-screen flex overflow-hidden antialiased select-none p-4 gap-4">
+
+  <!-- ========================================================================= -->
+  <!-- 30% SEKUNDER: SIDEBAR KIRI (Deep Slate Navy #182234)                     -->
+  <!-- ========================================================================= -->
+  <aside class="w-64 min-w-[250px] bg-[#182234] text-slate-300 rounded-3xl flex flex-col justify-between p-6 flex-shrink-0 shadow-lg">
+    <div class="space-y-7">
+      <!-- Logo MoonCafe -->
+      <div class="flex items-center gap-3 px-1 pt-1">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-500 via-orange-500 to-amber-600 flex items-center justify-center text-white shadow-md shadow-orange-500/20 flex-shrink-0">
+          <i data-lucide="moon" class="w-5 h-5 fill-white"></i>
+        </div>
+        <div>
+          <h1 class="text-xl font-extrabold text-white tracking-tight">MoonCafe</h1>
+          <p class="text-[10px] text-amber-400 font-bold uppercase tracking-wider">Cafe & Resto</p>
+        </div>
+      </div>
+
+      <!-- Navigasi Menu Aktif (Halaman SPA Bukan Dialog) -->
+      <nav class="space-y-1.5 text-sm font-medium">
+        <!-- 1. DASHBOARD RINGKASAN -->
+        <button onclick="navigasiKeHalaman('dashboard')" id="nav-dashboard" class="w-full flex items-center gap-3.5 px-4 py-3 rounded-2xl text-slate-400 hover:text-white hover:bg-slate-800/50 transition-colors text-left cursor-pointer group">
+          <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
+          <span>Dashboard</span>
+        </button>
+
+        <!-- 2. KASIR POS (Aktif Default) -->
+        <button onclick="navigasiKeHalaman('kasir')" id="nav-kasir" class="w-full flex items-center gap-3.5 px-4 py-3 rounded-2xl text-white font-bold bg-[#ff6900] shadow-lg shadow-orange-600/30 transition-all text-left cursor-pointer group">
+          <i data-lucide="printer" class="w-4 h-4"></i>
+          <span>Kasir</span>
+        </button>
+
+        <!-- 3. TRANSAKSI -->
+        <button onclick="navigasiKeHalaman('transaksi')" id="nav-transaksi" class="w-full flex items-center gap-3.5 px-4 py-3 rounded-2xl text-slate-400 hover:text-white hover:bg-slate-800/50 transition-colors text-left cursor-pointer group">
+          <i data-lucide="receipt" class="w-4 h-4"></i>
+          <span>Transaksi</span>
+        </button>
+
+        <!-- 4. MANAJEMEN MENU (CRUD) -->
+        <button onclick="navigasiKeHalaman('menu')" id="nav-menu" class="w-full flex items-center gap-3.5 px-4 py-3 rounded-2xl text-slate-400 hover:text-white hover:bg-slate-800/50 transition-colors text-left cursor-pointer group">
+          <i data-lucide="utensils" class="w-4 h-4 text-orange-400 group-hover:scale-110 transition-transform"></i>
+          <span class="flex-1">Menu</span>
+          <span class="text-[9px] font-black uppercase tracking-wider bg-orange-500/20 text-orange-400 px-1.5 py-0.5 rounded border border-orange-500/30">CRUD</span>
+        </button>
+
+        <!-- 5. KELOLA MEMBER -->
+        <button onclick="navigasiKeHalaman('member')" id="nav-member" class="w-full flex items-center gap-3.5 px-4 py-3 rounded-2xl text-slate-400 hover:text-white hover:bg-slate-800/50 transition-colors text-left cursor-pointer group">
+          <i data-lucide="users" class="w-4 h-4 text-emerald-400 group-hover:scale-110 transition-transform"></i>
+          <span class="flex-1">Member</span>
+          <span class="text-[9px] font-bold uppercase tracking-wider bg-emerald-500/20 text-emerald-400 px-1.5 py-0.5 rounded border border-emerald-500/30">Diskon 5%</span>
+        </button>
+
+        <!-- 6. LAPORAN PENJUALAN -->
+        <button onclick="navigasiKeHalaman('laporan')" id="nav-laporan" class="w-full flex items-center gap-3.5 px-4 py-3 rounded-2xl text-slate-400 hover:text-white hover:bg-slate-800/50 transition-colors text-left cursor-pointer group">
+          <i data-lucide="bar-chart-2" class="w-4 h-4"></i>
+          <span>Laporan</span>
+        </button>
+
+        <!-- 7. PENGATURAN TOKO & STRUK -->
+        <button onclick="navigasiKeHalaman('pengaturan')" id="nav-pengaturan" class="w-full flex items-center gap-3.5 px-4 py-3 rounded-2xl text-slate-400 hover:text-white hover:bg-slate-800/50 transition-colors text-left cursor-pointer group">
+          <i data-lucide="settings" class="w-4 h-4"></i>
+          <span>Pengaturan</span>
+        </button>
+      </nav>
+    </div>
+
+    <!-- Profil Pengguna di Bawah dengan Tombol Logout -->
+    <div class="pt-4 border-t border-slate-800/60 flex items-center justify-between">
+      <div class="flex items-center gap-3 min-w-0">
+        <div class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-700 font-bold shadow-inner flex-shrink-0">
+          <i data-lucide="user" class="w-5 h-5"></i>
+        </div>
+        <div class="min-w-0">
+          <p id="userNamaDisplay" class="text-sm font-bold text-white leading-tight truncate">Kasir Saladin</p>
+          <p id="userRoleDisplay" class="text-xs text-emerald-400 font-medium leading-tight truncate flex items-center gap-1 mt-0.5">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Kasir Aktif
+          </p>
+        </div>
+      </div>
+      <button onclick="logoutKasir()" title="Keluar / Ganti Akun" class="p-2 rounded-xl text-slate-400 hover:text-rose-400 hover:bg-slate-800 transition-colors cursor-pointer flex-shrink-0">
+        <i data-lucide="log-out" class="w-4 h-4"></i>
+      </button>
+    </div>
+  </aside>
+
+  <!-- ========================================================================= -->
+  <!-- 1. HALAMAN UTAMA: KASIR POS (Menu Grid 60% + Cart Pesanan 30%)             -->
+  <!-- ========================================================================= -->
+  <div id="page-kasir" class="flex-1 flex gap-5 overflow-hidden">
+    <main class="flex-1 bg-white rounded-3xl p-7 flex flex-col justify-between shadow-sm overflow-hidden">
+    
+    <!-- Bagian Atas: Header Judul Kasir & Tombol Ikon Kanan -->
+    <div class="space-y-4 flex-shrink-0">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <h2 class="text-2xl font-extrabold text-slate-900 tracking-tight">Kasir</h2>
+          <span id="dbBadge" class="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Live MySQL
+          </span>
+        </div>
+        <div class="flex items-center gap-2 text-slate-400">
+          <button onclick="bukaFormTambahMenu()" title="Tambah Menu Baru (CRUD)" class="px-3 py-1.5 rounded-xl bg-orange-50 border border-orange-200 text-orange-600 hover:bg-orange-100 font-bold text-xs flex items-center gap-1.5 transition-colors cursor-pointer">
+            <i data-lucide="plus" class="w-3.5 h-3.5"></i> Tambah Menu
+          </button>
+          <button onclick="loadMenuFromAPI()" title="Refresh data menu dari database" class="w-9 h-9 rounded-xl border border-slate-200 flex items-center justify-center hover:text-slate-700 hover:border-slate-300 transition-colors cursor-pointer">
+            <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+          </button>
+          <button onclick="toggleFullscreen()" title="Layar Penuh" class="w-9 h-9 rounded-xl border border-slate-200 flex items-center justify-center hover:text-slate-700 hover:border-slate-300 transition-colors cursor-pointer">
+            <i data-lucide="maximize-2" class="w-4 h-4"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Search Bar Sesuai Gambar -->
+      <div class="relative w-full">
+        <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2"></i>
+        <input 
+          type="text" 
+          id="searchMenuInput" 
+          placeholder="Cari menu makanan, minuman, komposisi bumbu..." 
+          class="w-full pl-11 pr-4 py-3 rounded-2xl bg-[#f8fafc] border border-slate-100 text-sm font-medium text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-orange-500/30 focus:border-orange-500 transition-all"
+          oninput="filterMenu()"
+        >
+      </div>
+
+      <!-- Category Filter Pills Sesuai Gambar -->
+      <div class="flex items-center gap-2.5 overflow-x-auto no-scrollbar pb-1">
+        <button onclick="filterByKategori('Semua')" id="pill-Semua" class="cat-btn px-5 py-2 rounded-xl text-xs font-bold bg-[#ff6900] text-white shadow-sm transition-all cursor-pointer">
+          Semua
+        </button>
+        <button onclick="filterByKategori('Makanan')" id="pill-Makanan" class="cat-btn px-5 py-2 rounded-xl text-xs font-semibold bg-[#f1f5f9] text-slate-600 hover:text-slate-900 transition-all cursor-pointer">
+          Makanan
+        </button>
+        <button onclick="filterByKategori('Minuman')" id="pill-Minuman" class="cat-btn px-5 py-2 rounded-xl text-xs font-semibold bg-[#f1f5f9] text-slate-600 hover:text-slate-900 transition-all cursor-pointer">
+          Minuman
+        </button>
+        <button onclick="filterByKategori('Snack')" id="pill-Snack" class="cat-btn px-5 py-2 rounded-xl text-xs font-semibold bg-[#f1f5f9] text-slate-600 hover:text-slate-900 transition-all cursor-pointer">
+          Snack
+        </button>
+      </div>
+    </div>
+
+    <!-- Grid Menu Makanan/Minuman Dinamis dari MySQL -->
+    <div id="menuGrid" class="flex-1 grid grid-cols-3 gap-6 py-4 overflow-y-auto pr-1 items-start"></div>
+
+  </main>
+
+  <!-- ========================================================================= -->
+  <!-- 60% DOMINAN: KARTU KANAN PUTIH (Pesanan Sesuai Gambar)                     -->
+  <!-- ========================================================================= -->
+  <aside class="w-80 min-w-[320px] bg-white rounded-3xl p-6 flex flex-col justify-between shadow-sm flex-shrink-0">
+    <div class="flex flex-col flex-1 min-h-0">
+      <div class="flex items-center justify-between mb-4 flex-shrink-0">
+        <h3 class="text-base font-extrabold text-slate-900" id="orderTitle">Pesanan (0)</h3>
+        <button onclick="kosongkanKeranjang()" title="Kosongkan Pesanan" class="text-xs font-bold text-slate-400 hover:text-rose-500 transition-colors flex items-center gap-1 cursor-pointer">
+          <i data-lucide="trash-2" class="w-3.5 h-3.5"></i> Bersihkan
+        </button>
+      </div>
+      <div id="cartList" class="space-y-4 overflow-y-auto pr-1 flex-1 min-h-0"></div>
+    </div>
+
+    <!-- Bagian Bawah: Perhitungan & Total Bayar -->
+    <div class="space-y-4 pt-4 border-t border-slate-100 flex-shrink-0">
+      <div class="space-y-2 text-xs">
+        <div class="flex justify-between items-center">
+          <span class="text-slate-500 font-medium">Subtotal</span>
+          <span class="font-bold text-slate-900" id="subtotalLabel">Rp0</span>
+        </div>
+        <div class="flex justify-between items-center">
+          <span class="text-slate-500 font-medium" id="diskonPercentLabel">Diskon (0%)</span>
+          <span class="font-bold text-slate-900" id="diskonNominalLabel">- Rp0</span>
+        </div>
+        <div class="flex justify-between items-center">
+          <span class="text-slate-500 font-medium">Pajak (10%)</span>
+          <span class="font-bold text-slate-900" id="pajakLabel">Rp0</span>
+        </div>
+      </div>
+
+      <div class="flex justify-between items-center pt-2">
+        <span class="text-base font-extrabold text-slate-900">Total Bayar</span>
+        <span class="text-lg font-black text-slate-900 bg-[#fef08a] px-3.5 py-1 rounded-xl tracking-tight" id="totalBayarBadge">
+          Rp0
+        </span>
+      </div>
+
+      <button 
+        id="btnProsesTransaksi"
+        onclick="bukaDialogPembayaran()" 
+        disabled
+        class="w-full py-3.5 px-4 rounded-2xl bg-[#ff6900] hover:bg-[#e05d00] disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.99] text-white font-bold text-sm shadow-md shadow-orange-500/20 flex items-center justify-center gap-2.5 transition-all cursor-pointer"
+      >
+        <i data-lucide="printer" class="w-4 h-4"></i>
+        <span>Proses Transaksi</span>
+      </button>
+    </div>
+  </aside>
+</div>
+
+  <!-- ========================================================================= -->
+  <!-- 2. HALAMAN: DASHBOARD UTAMA (RINGKASAN INFORMASI PENJUALAN)               -->
+  <!-- ========================================================================= -->
+  <div id="page-dashboard" class="flex-1 bg-white rounded-3xl shadow-sm overflow-hidden flex flex-col hidden">
+    <!-- Header Page -->
+    <div class="px-8 py-5 bg-[#182234] text-white flex items-center justify-between flex-shrink-0">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-amber-500 to-orange-500 flex items-center justify-center text-white shadow-md shadow-orange-500/20">
+          <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <h3 class="font-extrabold text-lg text-white">Dashboard Utama MoonCafe</h3>
+          <p class="text-xs text-slate-400">Ringkasan performa operasional kasir & penjualan hari ini</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-2">
+        <button onclick="loadDashboardStats()" class="px-3.5 py-1.5 rounded-xl bg-slate-800 text-slate-300 hover:text-white text-xs font-bold flex items-center gap-1.5 cursor-pointer transition-colors">
+          <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Segarkan Data
+        </button>
+        <button onclick="navigasiKeHalaman('kasir')" class="px-3.5 py-1.5 rounded-xl bg-[#ff6900] text-white hover:bg-[#e05d00] text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-md shadow-orange-500/20">
+          <i data-lucide="printer" class="w-3.5 h-3.5"></i> Buka Kasir
+        </button>
+      </div>
+    </div>
+
+    <div class="p-8 overflow-y-auto flex-1 space-y-6">
+      <!-- 4 KPI Cards -->
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="p-5 rounded-2xl bg-orange-50/80 border border-orange-200 space-y-1">
+          <div class="flex items-center justify-between text-orange-600">
+            <span class="text-xs font-bold uppercase tracking-wider">Omzet Hari Ini</span>
+            <i data-lucide="wallet" class="w-5 h-5"></i>
+          </div>
+          <p id="dashOmzetHariIni" class="text-2xl font-black text-slate-900 mt-2">Rp0</p>
+          <p class="text-[11px] text-orange-800 font-medium">Berdasarkan transaksi tanggal ini</p>
+        </div>
+
+        <div class="p-5 rounded-2xl bg-blue-50/80 border border-blue-200 space-y-1">
+          <div class="flex items-center justify-between text-blue-600">
+            <span class="text-xs font-bold uppercase tracking-wider">Transaksi Hari Ini</span>
+            <i data-lucide="shopping-bag" class="w-5 h-5"></i>
+          </div>
+          <p id="dashTrxHariIni" class="text-2xl font-black text-slate-900 mt-2">0</p>
+          <p class="text-[11px] text-blue-800 font-medium">Total struk terbit hari ini</p>
+        </div>
+
+        <div class="p-5 rounded-2xl bg-emerald-50/80 border border-emerald-200 space-y-1">
+          <div class="flex items-center justify-between text-emerald-600">
+            <span class="text-xs font-bold uppercase tracking-wider">Produk Menu</span>
+            <i data-lucide="coffee" class="w-5 h-5"></i>
+          </div>
+          <p id="dashTotalProduk" class="text-2xl font-black text-slate-900 mt-2">0</p>
+          <p class="text-[11px] text-emerald-800 font-medium" id="dashTotalStok">Total Stok: 0 porsi</p>
+        </div>
+
+        <div class="p-5 rounded-2xl bg-purple-50/80 border border-purple-200 space-y-1">
+          <div class="flex items-center justify-between text-purple-600">
+            <span class="text-xs font-bold uppercase tracking-wider">Member Resto</span>
+            <i data-lucide="crown" class="w-5 h-5"></i>
+          </div>
+          <p id="dashTotalMember" class="text-2xl font-black text-slate-900 mt-2">0</p>
+          <p class="text-[11px] text-purple-800 font-medium">Pelanggan terdaftar loyalty</p>
+        </div>
+      </div>
+
+      <!-- 2 Kolom: Top Selling Menu & 5 Transaksi Terkini -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="p-6 rounded-2xl bg-slate-50 border border-slate-200 space-y-4">
+          <div class="flex items-center justify-between">
+            <h5 class="font-extrabold text-sm text-slate-900 flex items-center gap-2">
+              <i data-lucide="flame" class="w-4 h-4 text-orange-500"></i> Menu Terlaris (Top Selling)
+            </h5>
+            <span class="text-[10px] font-bold text-slate-400 uppercase">Berdasarkan Qty</span>
+          </div>
+          <div id="dashTopMenuContainer" class="space-y-3"></div>
+        </div>
+
+        <div class="p-6 rounded-2xl bg-slate-50 border border-slate-200 space-y-4">
+          <div class="flex items-center justify-between">
+            <h5 class="font-extrabold text-sm text-slate-900 flex items-center gap-2">
+              <i data-lucide="clock" class="w-4 h-4 text-blue-500"></i> Transaksi Terkini
+            </h5>
+            <button onclick="navigasiKeHalaman('transaksi')" class="text-[11px] font-bold text-orange-600 hover:underline cursor-pointer">
+              Lihat Semua &rarr;
+            </button>
+          </div>
+          <div id="dashRecentOrdersContainer" class="space-y-2.5"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- 3. HALAMAN: RIWAYAT TRANSAKSI PENJUALAN                                   -->
+  <!-- ========================================================================= -->
+  <div id="page-transaksi" class="flex-1 bg-white rounded-3xl shadow-sm overflow-hidden flex flex-col hidden">
+    <div class="px-8 py-5 bg-[#182234] text-white flex items-center justify-between flex-shrink-0">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-2xl bg-amber-500 flex items-center justify-center text-white shadow-md shadow-amber-500/20">
+          <i data-lucide="receipt" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <h3 class="font-extrabold text-lg text-white">Riwayat Transaksi Penjualan MoonCafe</h3>
+          <p class="text-xs text-slate-400">Tersimpan permanen di tabel MySQL `transaksi`</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-2">
+        <button onclick="loadRiwayatTransaksi()" class="px-3.5 py-1.5 rounded-xl bg-slate-800 text-slate-300 hover:text-white text-xs font-bold flex items-center gap-1.5 cursor-pointer transition-colors">
+          <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Segarkan Riwayat
+        </button>
+        <button onclick="navigasiKeHalaman('kasir')" class="px-3.5 py-1.5 rounded-xl bg-[#ff6900] text-white hover:bg-[#e05d00] text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-md shadow-orange-500/20">
+          <i data-lucide="printer" class="w-3.5 h-3.5"></i> Buka Kasir
+        </button>
+      </div>
+    </div>
+
+    <div class="p-8 overflow-y-auto flex-1">
+      <table class="w-full text-left text-xs border-collapse">
+        <thead>
+          <tr class="border-b border-slate-200 text-slate-500 uppercase font-black tracking-wider text-[11px]">
+            <th class="py-3 px-3">Nomor Nota</th>
+            <th class="py-3 px-3">Waktu</th>
+            <th class="py-3 px-3">Tipe</th>
+            <th class="py-3 px-3">Member</th>
+            <th class="py-3 px-3">Total Bayar</th>
+            <th class="py-3 px-3 text-center">Aksi</th>
+          </tr>
+        </thead>
+        <tbody id="riwayatTableBody" class="divide-y divide-slate-100 font-medium text-slate-700"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- 4. HALAMAN: MANAJEMEN MENU PRODUK (CRUD)                                  -->
+  <!-- ========================================================================= -->
+  <div id="page-menu" class="flex-1 bg-white rounded-3xl shadow-sm overflow-hidden flex flex-col hidden">
+    <div class="px-8 py-5 bg-[#182234] text-white flex items-center justify-between flex-shrink-0">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-2xl bg-[#ff6900] flex items-center justify-center text-white font-bold shadow-md shadow-orange-500/30">
+          <i data-lucide="utensils" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <h3 class="font-extrabold text-lg text-white">Manajemen Menu Produk (CRUD)</h3>
+          <p class="text-xs text-slate-400">Kelola daftar menu makanan, minuman, harga, stok, dan resep komposisi</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-2">
+        <button onclick="bukaFormTambahMenu()" class="px-4 py-2 rounded-xl bg-[#ff6900] hover:bg-[#e05d00] text-white font-extrabold text-xs shadow-md shadow-orange-500/20 flex items-center justify-center gap-2 transition-all cursor-pointer">
+          <i data-lucide="plus-circle" class="w-4 h-4"></i> Tambah Menu Baru
+        </button>
+      </div>
+    </div>
+
+    <div class="px-8 py-4 bg-slate-50 border-b border-slate-200/80 flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3 flex-shrink-0">
+      <div class="relative flex-1 max-w-sm">
+        <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
+        <input 
+          type="text" 
+          id="searchCrudInput" 
+          placeholder="Cari menu di tabel..." 
+          class="w-full pl-10 pr-3 py-2 rounded-xl border border-slate-200 bg-white text-xs font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-orange-500"
+          oninput="renderCrudMenuTable()"
+        >
+      </div>
+      <span class="text-xs font-bold text-slate-500">Tersinkronisasi Otomatis dengan MySQL</span>
+    </div>
+
+    <div class="p-8 overflow-y-auto flex-1">
+      <table class="w-full text-left text-xs border-collapse">
+        <thead>
+          <tr class="border-b-2 border-slate-200 text-slate-500 uppercase font-black tracking-wider text-[11px]">
+            <th class="py-3 px-3">Produk</th>
+            <th class="py-3 px-3">Kategori</th>
+            <th class="py-3 px-3">Harga</th>
+            <th class="py-3 px-3 text-center">Stok</th>
+            <th class="py-3 px-3">Komposisi / Deskripsi</th>
+            <th class="py-3 px-3 text-center">Aksi</th>
+          </tr>
+        </thead>
+        <tbody id="crudMenuTableBody" class="divide-y divide-slate-100 font-medium text-slate-700"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- 5. HALAMAN: KELOLA MEMBER RESTO LOYALITAS (DISKON 5%)                     -->
+  <!-- ========================================================================= -->
+  <div id="page-member" class="flex-1 bg-white rounded-3xl shadow-sm overflow-hidden flex flex-col hidden">
+    <!-- Header -->
+    <div class="px-8 py-5 border-b border-slate-100 flex items-center justify-between bg-slate-900 text-white flex-shrink-0">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-2xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center border border-emerald-500/30">
+          <i data-lucide="users" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <h3 class="font-extrabold text-lg text-white tracking-tight">Kelola Member Loyalitas MoonCafe</h3>
+          <p class="text-xs text-slate-400">Database pelanggan member aktif dengan hak istimewa diskon 5%</p>
+        </div>
+      </div>
+      <button onclick="bukaModalTambahMember()" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center gap-1.5 shadow-md shadow-emerald-600/30 cursor-pointer">
+        <i data-lucide="user-plus" class="w-4 h-4"></i> Tambah Member Baru
+      </button>
+    </div>
+
+    <!-- Toolbar Pencarian -->
+    <div class="p-6 pb-2 border-b border-slate-100 flex items-center justify-between gap-4 flex-shrink-0">
+      <div class="relative flex-1 max-w-md">
+        <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
+        <input type="text" id="inputCariMemberTabel" oninput="filterMemberTable()" placeholder="Cari nama, kode member, atau no HP..." class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+      </div>
+      <span id="badgeTotalMemberAktif" class="text-xs font-bold text-slate-500 bg-slate-100 px-3 py-1.5 rounded-lg">Memuat data...</span>
+    </div>
+
+    <!-- Tabel Member -->
+    <div class="p-6 overflow-y-auto flex-1">
+      <div class="border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
+        <table class="w-full text-left text-xs">
+          <thead class="bg-slate-50 text-slate-500 font-bold uppercase tracking-wider text-[11px] border-b border-slate-200">
+            <tr>
+              <th class="py-3 px-4">Kode Member</th>
+              <th class="py-3 px-4">Nama Pelanggan</th>
+              <th class="py-3 px-4">No. Telepon / WhatsApp</th>
+              <th class="py-3 px-4 text-center">Benefit Diskon</th>
+              <th class="py-3 px-4 text-center">Poin Loyalitas</th>
+              <th class="py-3 px-4 text-center">Aksi</th>
+            </tr>
+          </thead>
+          <tbody id="tbodyMemberTable" class="divide-y divide-slate-100 text-slate-700 font-medium">
+            <tr>
+              <td colspan="6" class="py-8 text-center text-slate-400">Memuat data member...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- 6. HALAMAN: LAPORAN PENJUALAN FINANSIAL & PAJAK PB1                       -->
+  <!-- ========================================================================= -->
+  <div id="page-laporan" class="flex-1 bg-white rounded-3xl shadow-sm overflow-hidden flex flex-col hidden">
+    <div class="px-8 py-5 bg-[#182234] text-white flex items-center justify-between flex-shrink-0">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-2xl bg-emerald-500 flex items-center justify-center text-white shadow-md shadow-emerald-500/20">
+          <i data-lucide="bar-chart-2" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <h3 class="font-extrabold text-lg text-white">Laporan Rekapitulasi Penjualan & Pajak PB1</h3>
+          <p class="text-xs text-slate-400">Bukti pertanggungjawaban data finansial untuk asesor UKK</p>
+        </div>
+      </div>
+      <button onclick="window.print()" class="px-4 py-2 rounded-xl bg-[#ff6900] hover:bg-[#e05d00] text-white font-bold text-xs flex items-center gap-2 shadow-md shadow-orange-600/30 cursor-pointer">
+        <i data-lucide="printer" class="w-4 h-4"></i> Cetak Laporan Penjualan
+      </button>
+    </div>
+
+    <div class="p-8 overflow-y-auto flex-1 space-y-6">
+      <!-- KPI Laporan Finansial -->
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 text-xs font-bold">
+        <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200">
+          <span class="text-slate-500 font-medium">Total Omzet Kotor (Subtotal):</span>
+          <p id="lapSubtotal" class="text-lg font-black text-slate-900 mt-1">Rp0</p>
+        </div>
+        <div class="p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800">
+          <span class="font-medium">Total Potongan Diskon:</span>
+          <p id="lapDiskon" class="text-lg font-black mt-1">- Rp0</p>
+        </div>
+        <div class="p-4 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900">
+          <span class="font-medium">Total Pajak PB1 (10%):</span>
+          <p id="lapPajak" class="text-lg font-black mt-1">Rp0</p>
+        </div>
+        <div class="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-900">
+          <span class="font-medium">Total Bersih (Grand Total):</span>
+          <p id="lapGrandTotal" class="text-lg font-black mt-1">Rp0</p>
+        </div>
+      </div>
+
+      <!-- Tabel Detail Laporan -->
+      <div class="space-y-2">
+        <h5 class="text-xs font-black uppercase tracking-wider text-slate-700">Rincian Transaksi Penjualan:</h5>
+        <div class="border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
+          <table class="w-full text-left text-xs border-collapse">
+            <thead class="bg-slate-50 text-slate-500 uppercase font-black tracking-wider text-[11px] border-b border-slate-200">
+              <tr>
+                <th class="py-3 px-3">Nomor Nota</th>
+                <th class="py-3 px-3">Waktu</th>
+                <th class="py-3 px-3">Kasir</th>
+                <th class="py-3 px-3">Pelanggan</th>
+                <th class="py-3 px-3">Subtotal</th>
+                <th class="py-3 px-3 text-rose-600">Diskon</th>
+                <th class="py-3 px-3">Pajak (10%)</th>
+                <th class="py-3 px-3 font-black text-slate-900">Grand Total</th>
+              </tr>
+            </thead>
+            <tbody id="laporanTableBody" class="divide-y divide-slate-100 font-medium text-slate-700"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- 7. HALAMAN: PENGATURAN TOKO & STRUK KASIR                                 -->
+  <!-- ========================================================================= -->
+  <div id="page-pengaturan" class="flex-1 bg-white rounded-3xl shadow-sm overflow-hidden flex flex-col hidden">
+    <!-- Header -->
+    <div class="px-8 py-5 border-b border-slate-100 flex items-center justify-between bg-slate-900 text-white flex-shrink-0">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-2xl bg-orange-500/20 text-[#ff6900] flex items-center justify-center border border-orange-500/30">
+          <i data-lucide="settings" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <h3 class="font-extrabold text-lg text-white tracking-tight">Pengaturan Toko & Struk Kasir</h3>
+          <p class="text-xs text-slate-400">Konfigurasi identitas restoran yang dicetak pada Struk Kasir 58mm</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Body Form -->
+    <form onsubmit="simpanPengaturanToko(event)" class="p-8 overflow-y-auto flex-1 max-w-2xl space-y-4 text-xs font-bold text-slate-700">
+      <div class="space-y-1">
+        <label>Nama Cafe / Restoran <span class="text-rose-500">*</span></label>
+        <input type="text" id="settingNamaToko" required class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-slate-900 font-semibold focus:outline-none focus:ring-2 focus:ring-orange-500">
+      </div>
+
+      <div class="space-y-1">
+        <label>Alamat Lengkap Resto <span class="text-rose-500">*</span></label>
+        <input type="text" id="settingAlamatToko" required class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-slate-900 font-semibold focus:outline-none focus:ring-2 focus:ring-orange-500">
+      </div>
+
+      <div class="space-y-1">
+        <label>No. Telepon / WhatsApp Layanan</label>
+        <input type="text" id="settingNoTelepon" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-slate-900 font-semibold focus:outline-none focus:ring-2 focus:ring-orange-500">
+      </div>
+
+      <div class="space-y-1">
+        <label>Pesan Footer Struk Kasir</label>
+        <textarea id="settingFooterPesan" rows="2" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-slate-900 font-semibold focus:outline-none focus:ring-2 focus:ring-orange-500"></textarea>
+      </div>
+
+      <!-- Info Box Sistem Pajak & Database -->
+      <div class="p-4 bg-slate-50 border border-slate-200 rounded-2xl space-y-2 text-[11px] font-normal text-slate-600">
+        <p class="font-bold text-slate-800 flex items-center gap-1.5">
+          <i data-lucide="shield-check" class="w-4 h-4 text-emerald-600"></i> Standar Operasional UKK:
+        </p>
+        <div class="grid grid-cols-2 gap-2 pt-1">
+          <div class="p-2 bg-white rounded-lg border border-slate-100">
+            <span class="block text-[10px] text-slate-400 font-bold uppercase">Pajak Restoran PB1</span>
+            <strong class="text-slate-800">10% Otomatis</strong>
+          </div>
+          <div class="p-2 bg-white rounded-lg border border-slate-100">
+            <span class="block text-[10px] text-slate-400 font-bold uppercase">Database MySQL</span>
+            <strong class="text-slate-800">Port 3306 (XAMPP)</strong>
+          </div>
+        </div>
+      </div>
+
+      <div class="pt-2">
+        <button type="submit" id="btnSimpanSetting" class="w-full py-3 rounded-2xl bg-[#ff6900] hover:bg-[#e05d00] text-white font-black text-xs shadow-lg shadow-orange-500/30 flex items-center justify-center gap-2 cursor-pointer transition-all">
+          <i data-lucide="save" class="w-4 h-4"></i> Simpan Perubahan Pengaturan
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- MODAL CHECKOUT KASIR SUPER WIDE (max-w-5xl)                               -->
+  <!-- ========================================================================= -->
+  <div id="modalCheckout" class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-50 flex items-center justify-center p-6 md:p-10 hidden">
+    <div class="bg-white w-full max-w-5xl rounded-3xl shadow-2xl border border-slate-100 overflow-hidden flex flex-col max-h-[92vh]">
+      <div class="px-8 py-6 bg-[#182234] text-white flex items-center justify-between flex-shrink-0">
+        <div class="flex items-center gap-3.5">
+          <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-amber-500 to-orange-500 flex items-center justify-center text-white font-bold shadow-lg shadow-orange-500/30 flex-shrink-0">
+            <i data-lucide="receipt" class="w-6 h-6"></i>
+          </div>
+          <div>
+            <h4 class="font-black text-lg md:text-xl tracking-tight">Kasir MoonCafe - Konfirmasi Pembayaran & Cetak Struk</h4>
+            <p class="text-xs text-slate-300 mt-0.5">Transaksi langsung tercatat di MySQL & memotong stok otomatis</p>
+          </div>
+        </div>
+        <button onclick="tutupDialogPembayaran()" class="w-10 h-10 rounded-2xl bg-slate-800 text-slate-400 hover:text-white hover:bg-slate-700 flex items-center justify-center transition-colors cursor-pointer">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="p-8 md:p-10 overflow-y-auto flex-1 grid grid-cols-1 md:grid-cols-2 gap-10">
+        <!-- Kiri -->
+        <div class="space-y-6">
+          <div class="space-y-2.5">
+            <label class="text-xs font-black text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
+              <span class="w-5 h-5 rounded-full bg-slate-200 text-slate-800 flex items-center justify-center text-[11px] font-bold">1</span>
+              Tipe Pesanan Restoran:
+            </label>
+            <div class="grid grid-cols-2 gap-4 text-sm font-bold">
+              <button type="button" id="modalBtnDineIn" onclick="pilihTipePesanan('dine_in')" class="py-3.5 px-4 rounded-2xl border-2 border-[#ff6900] bg-orange-50 text-orange-950 flex items-center justify-center gap-2.5 shadow-sm transition-all cursor-pointer">
+                <i data-lucide="utensils" class="w-4 h-4 text-orange-600"></i> Dine In (Makan di Sini)
+              </button>
+              <button type="button" id="modalBtnTakeAway" onclick="pilihTipePesanan('take_away')" class="py-3.5 px-4 rounded-2xl border border-slate-200 text-slate-600 flex items-center justify-center gap-2.5 hover:bg-slate-50 transition-all cursor-pointer">
+                <i data-lucide="package" class="w-4 h-4 text-slate-500"></i> Take Away (Bungkus)
+              </button>
+            </div>
+          </div>
+
+          <div class="p-5 rounded-2xl bg-amber-50/80 border border-amber-200 space-y-3.5 shadow-sm">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-black text-amber-950 flex items-center gap-2">
+                <i data-lucide="crown" class="w-4 h-4 text-amber-600"></i>
+                <span class="w-5 h-5 rounded-full bg-amber-200 text-amber-950 flex items-center justify-center text-[11px] font-bold">2</span>
+                Apakah pelanggan memiliki Member MoonCafe?
+              </span>
+              <span class="text-[11px] font-black bg-amber-200 text-amber-950 px-2.5 py-1 rounded-full shadow-xs">Diskon Member +5%</span>
+            </div>
+
+            <div class="flex items-center gap-3">
+              <button type="button" id="btnMemberNo" onclick="toggleMember(false)" class="flex-1 py-3 rounded-xl text-xs font-bold border-2 border-slate-700 bg-slate-800 text-white shadow-sm transition-all cursor-pointer">
+                Bukan Member
+              </button>
+              <button type="button" id="btnMemberYes" onclick="toggleMember(true)" class="flex-1 py-3 rounded-xl text-xs font-bold border border-amber-300 bg-white text-amber-800 hover:bg-amber-100 transition-all cursor-pointer">
+                Punya Member
+              </button>
+            </div>
+
+            <div id="inputMemberBox" class="space-y-2 hidden pt-1">
+              <label class="text-xs font-bold text-amber-950">Ketikkan Nama / Kode Member (Query ke MySQL):</label>
+              <div class="relative">
+                <input 
+                  type="text" 
+                  id="memberInput" 
+                  placeholder="Ketik 'MBR-001' atau 'Budi' atau 'Siti'..."
+                  class="w-full pl-3.5 pr-28 py-3 rounded-xl border border-amber-300 text-xs font-extrabold text-slate-800 focus:outline-none focus:ring-2 focus:ring-amber-500 bg-white shadow-xs"
+                  oninput="cariMemberRealtime()"
+                >
+                <span id="memberStatusText" class="absolute right-2.5 top-1/2 -translate-y-1/2 text-[11px] font-black text-emerald-700 bg-emerald-100 px-2.5 py-1 rounded-md hidden">
+                  Aktif (+5%)
+                </span>
+              </div>
+              <div id="memberSearchResults" class="space-y-1 hidden"></div>
+            </div>
+          </div>
+
+          <div class="space-y-2">
+            <label class="text-xs font-black text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
+              <span class="w-5 h-5 rounded-full bg-slate-200 text-slate-800 flex items-center justify-center text-[11px] font-bold">3</span>
+              Rincian Item Dipesan:
+            </label>
+            <div id="modalItemsSummary" class="max-h-36 overflow-y-auto space-y-2 text-xs text-slate-700 bg-slate-50 p-4 rounded-2xl border border-slate-200/90 font-medium"></div>
+          </div>
+        </div>
+
+        <!-- Kanan -->
+        <div class="space-y-6 flex flex-col justify-between">
+          <div class="space-y-5">
+            <div class="p-5 rounded-2xl bg-slate-50 border border-slate-200/90 space-y-2.5 text-xs">
+              <div class="flex justify-between text-slate-600 font-medium">
+                <span>Subtotal Pesanan:</span>
+                <span id="modalSubtotal" class="font-bold text-slate-900 text-sm">Rp0</span>
+              </div>
+              <div class="flex justify-between text-emerald-600 font-bold">
+                <span>Potongan Diskon:</span>
+                <span id="modalDiskon" class="text-sm">- Rp0 (0%)</span>
+              </div>
+              <div class="flex justify-between text-slate-600 font-medium">
+                <span>Pajak Restoran PB1 (10%):</span>
+                <span id="modalPajak" class="font-bold text-slate-900 text-sm">Rp0</span>
+              </div>
+              <div class="flex justify-between items-center text-sm font-black text-slate-900 pt-3 border-t border-slate-200">
+                <span class="text-xs uppercase tracking-wider font-extrabold text-slate-700">TOTAL TAGIHAN:</span>
+                <span id="modalGrandTotal" class="text-2xl text-orange-600 font-black">Rp0</span>
+              </div>
+            </div>
+
+            <div class="space-y-2">
+              <label class="text-xs font-black text-slate-700 uppercase tracking-wider">Nominal Uang Diterima Kasir (Rp):</label>
+              <div class="relative">
+                <span class="absolute left-4 top-1/2 -translate-y-1/2 font-black text-slate-400 text-base">Rp</span>
+                <input 
+                  type="number" 
+                  id="uangDiterimaInput" 
+                  placeholder="Masukkan nominal uang kasir..."
+                  class="w-full pl-12 pr-4 py-3.5 rounded-2xl border border-slate-300 font-black text-slate-900 text-lg focus:outline-none focus:ring-2 focus:ring-orange-500 bg-white"
+                  oninput="hitungUangKembalian()"
+                >
+              </div>
+              <div class="flex gap-2 pt-1" id="quickMoneyButtons"></div>
+            </div>
+
+            <div class="flex justify-between items-center p-4 rounded-2xl bg-slate-100 border border-slate-200">
+              <span class="text-xs font-bold text-slate-600">Uang Kembalian:</span>
+              <span id="kembalianText" class="font-black text-slate-900 text-lg">Rp0</span>
+            </div>
+          </div>
+
+          <div class="flex gap-4 pt-2">
+            <button onclick="tutupDialogPembayaran()" class="flex-1 py-3.5 rounded-2xl border border-slate-300 font-bold text-xs text-slate-600 hover:bg-slate-100 transition-colors cursor-pointer">
+              Batal
+            </button>
+            <button id="btnKonfirmasiSimpan" onclick="simpanTransaksiKeDatabase()" class="flex-[2] py-3.5 rounded-2xl bg-[#ff6900] hover:bg-[#e05d00] font-black text-sm text-white shadow-xl shadow-orange-500/25 flex items-center justify-center gap-2 transition-all cursor-pointer">
+              <i data-lucide="check-circle" class="w-5 h-5"></i> Konfirmasi & Cetak Struk
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- MODAL THERMAL STRUK CASHER (PRINT PREVIEW 58MM)                          -->
+  <!-- ========================================================================= -->
+  <div id="modalStrukThermal" class="fixed inset-0 bg-slate-950/75 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-3xl shadow-2xl p-6 max-w-sm w-full space-y-4 animate-in zoom-in-95 duration-150">
+      <div id="printArea" class="bg-white border border-dashed border-slate-300 p-5 font-mono text-[11px] text-slate-800 space-y-3 rounded-2xl shadow-inner">
+        <div class="text-center border-b border-dashed border-slate-400 pb-3">
+          <h4 class="font-black text-sm uppercase tracking-wider text-slate-900" id="receiptRestoName">MOONCAFE</h4>
+          <p class="text-[10px] text-slate-500" id="receiptRestoAddress">Jl. D.I. Panjaitan No. 128, Purwokerto</p>
+          <p class="text-[10px] text-slate-500">Telp: (0281) 635888</p>
+        </div>
+
+        <div class="text-[10px] space-y-0.5 text-slate-600">
+          <div class="flex justify-between">
+            <span>Nota: <strong id="receiptNota">NOTA-001</strong></span>
+            <span id="receiptOrderType" class="font-bold">DINE IN</span>
+          </div>
+          <div class="flex justify-between">
+            <span>Waktu:</span>
+            <span id="receiptTime">09-11-2026 10:00</span>
+          </div>
+          <div class="flex justify-between">
+            <span>Kasir:</span>
+            <span id="receiptCashier">Saladin</span>
+          </div>
+          <div class="flex justify-between" id="receiptMemberRow">
+            <span>Member:</span>
+            <span id="receiptMemberName">Umum</span>
+          </div>
+        </div>
+
+        <div class="border-t border-b border-dashed border-slate-400 py-2 space-y-1.5" id="receiptItemsList"></div>
+
+        <div class="space-y-1 text-[11px] pt-1">
+          <div class="flex justify-between">
+            <span>Subtotal:</span>
+            <span id="receiptSubtotal">Rp0</span>
+          </div>
+          <div class="flex justify-between text-emerald-700">
+            <span>Diskon:</span>
+            <span id="receiptDiskon">- Rp0</span>
+          </div>
+          <div class="flex justify-between">
+            <span>Pajak PB1 (10%):</span>
+            <span id="receiptPajak">Rp0</span>
+          </div>
+          <div class="flex justify-between font-black text-xs pt-1.5 border-t border-slate-400 text-slate-900">
+            <span>TOTAL:</span>
+            <span id="receiptGrandTotal">Rp0</span>
+          </div>
+          <div class="flex justify-between pt-1">
+            <span>Tunai:</span>
+            <span id="receiptBayar">Rp0</span>
+          </div>
+          <div class="flex justify-between">
+            <span>Kembalian:</span>
+            <span id="receiptKembalian">Rp0</span>
+          </div>
+        </div>
+
+        <div class="text-center text-[9px] text-slate-500 pt-3 border-t border-dashed border-slate-400">
+          *** TERIMA KASIH ATAS KUNJUNGAN ANDA ***<br>
+          Nikmati harimu bersama MoonCafe!
+        </div>
+      </div>
+
+      <div class="flex gap-2.5">
+        <button onclick="tutupStrukThermal()" class="flex-1 py-3 rounded-2xl border border-slate-300 font-bold text-xs text-slate-600 hover:bg-slate-100 cursor-pointer">
+          Tutup
+        </button>
+        <button onclick="window.print()" class="flex-[2] py-3 rounded-2xl bg-slate-900 hover:bg-slate-800 text-white font-extrabold text-xs shadow-md flex items-center justify-center gap-1.5 cursor-pointer">
+          <i data-lucide="printer" class="w-4 h-4"></i> Cetak Kertas Struk
+        </button>
+      </div>
+    </div>
+  </div>
+
+
+
+  <!-- ========================================================================= -->
+  <!-- MODAL FORM TAMBAH / EDIT MENU PRODUK (CREATE & UPDATE)                   -->
+  <!-- ========================================================================= -->
+  <div id="modalFormMenu" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-[60] flex items-center justify-center p-6 hidden">
+    <div class="bg-white w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-150">
+      <div class="px-6 py-4 bg-[#182234] text-white flex items-center justify-between">
+        <h4 class="font-extrabold text-sm" id="formMenuTitle">Tambah Menu Baru</h4>
+        <button onclick="tutupFormMenu()" class="text-slate-400 hover:text-white cursor-pointer">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <form id="formMenu" onsubmit="simpanMenu(event)" class="p-6 space-y-4 text-xs font-bold text-slate-700">
+        <input type="hidden" id="formMenuId" value="">
+        <div class="space-y-1">
+          <label>Nama Menu / Produk <span class="text-rose-500">*</span></label>
+          <input type="text" id="formMenuNama" required placeholder="Contoh: Caramel Macchiato" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-orange-500">
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div class="space-y-1">
+            <label>Kategori Menu <span class="text-rose-500">*</span></label>
+            <select id="formMenuKategori" required class="w-full px-3 py-2.5 rounded-xl border border-slate-300 font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-orange-500 bg-white">
+              <option value="1">Makanan</option>
+              <option value="2">Minuman</option>
+              <option value="3">Snack</option>
+            </select>
+          </div>
+          <div class="space-y-1">
+            <label>Harga Satuan (Rp) <span class="text-rose-500">*</span></label>
+            <input type="number" id="formMenuHarga" required min="1000" step="500" placeholder="Contoh: 25000" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-orange-500">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-3 gap-3">
+          <div class="space-y-1 col-span-1">
+            <label>Stok Porsi <span class="text-rose-500">*</span></label>
+            <input type="number" id="formMenuStok" required min="0" placeholder="50" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-orange-500">
+          </div>
+          <div class="space-y-1 col-span-2">
+            <label>URL Gambar Menu</label>
+            <input type="url" id="formMenuGambar" placeholder="https://images.unsplash.com/..." class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-orange-500">
+          </div>
+        </div>
+
+        <div class="space-y-1">
+          <label>Komposisi Bahan & Info Alergen (Deskripsi Menu):</label>
+          <textarea id="formMenuDeskripsi" rows="3" placeholder="Tuliskan bahan-bahan utama, bumbu racikan, dan catatan alergen..." class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-orange-500"></textarea>
+        </div>
+
+        <div class="pt-3 flex gap-3">
+          <button type="button" onclick="tutupFormMenu()" class="flex-1 py-2.5 rounded-xl border border-slate-300 text-slate-600 font-bold hover:bg-slate-50 cursor-pointer">
+            Batal
+          </button>
+          <button type="submit" id="btnSubmitFormMenu" class="flex-1 py-2.5 rounded-xl bg-[#ff6900] hover:bg-[#e05d00] text-white font-extrabold shadow-md flex items-center justify-center gap-1.5 cursor-pointer">
+            <i data-lucide="check" class="w-4 h-4"></i> Simpan Menu
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- 🌟 3. MODAL LOGIN KASIR / ADMIN (OTENTIKASI USER) 🌟                      -->
+  <!-- ========================================================================= -->
+  <div id="modalLogin" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-[70] flex items-center justify-center p-6 hidden">
+    <div class="bg-white w-full max-w-sm rounded-3xl shadow-2xl p-7 space-y-5 animate-in zoom-in-95 duration-200">
+      <div class="text-center space-y-1">
+        <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-amber-500 to-orange-500 flex items-center justify-center text-white mx-auto shadow-lg shadow-orange-500/30">
+          <i data-lucide="moon" class="w-6 h-6 fill-white"></i>
+        </div>
+        <h4 class="font-black text-lg text-slate-900 tracking-tight pt-2">Login Petugas MoonCafe</h4>
+        <p class="text-xs text-slate-400">Silakan masuk sebagai Kasir atau Admin</p>
+      </div>
+
+      <form onsubmit="prosesLoginKasir(event)" class="space-y-4 text-xs font-bold text-slate-700">
+        <div class="space-y-1">
+          <label>Username</label>
+          <input type="text" id="loginUsername" required placeholder="kasir atau admin" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-orange-500">
+        </div>
+        <div class="space-y-1">
+          <label>Password</label>
+          <input type="password" id="loginPassword" required placeholder="kasir123 atau admin123" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-orange-500">
+        </div>
+
+        <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-[10px] space-y-1 text-slate-500">
+          <p class="font-bold text-slate-700">Akun Pengujian Asesor UKK:</p>
+          <p>• Kasir: <code class="text-orange-600 font-bold">kasir</code> / <code class="text-orange-600 font-bold">kasir123</code></p>
+          <p>• Admin: <code class="text-orange-600 font-bold">admin</code> / <code class="text-orange-600 font-bold">admin123</code></p>
+        </div>
+
+        <button type="submit" id="btnLoginSubmit" class="w-full py-3 rounded-2xl bg-[#ff6900] hover:bg-[#e05d00] text-white font-black text-xs shadow-lg shadow-orange-500/30 flex items-center justify-center gap-2 cursor-pointer transition-all">
+          <i data-lucide="log-in" class="w-4 h-4"></i> Masuk Sekarang
+        </button>
+      </form>
+    </div>
+  </div>
+
+
+
+  <!-- Form Modal Tambah Member -->
+  <div id="modalFormMember" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-[60] flex items-center justify-center p-6 hidden">
+    <div class="bg-white w-full max-w-md rounded-3xl shadow-2xl p-6 space-y-4 animate-in zoom-in-95 duration-200">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+        <h4 class="font-extrabold text-slate-900 text-sm flex items-center gap-2">
+          <i data-lucide="user-plus" class="w-4 h-4 text-emerald-600"></i> Pendaftaran Member Baru
+        </h4>
+        <button onclick="tutupModalTambahMember()" class="text-slate-400 hover:text-slate-600 cursor-pointer">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <form onsubmit="simpanMemberBaru(event)" class="space-y-3.5 text-xs font-bold text-slate-700">
+        <div class="space-y-1">
+          <label>Nama Lengkap Pelanggan <span class="text-rose-500">*</span></label>
+          <input type="text" id="memberFormNama" required placeholder="Contoh: Raditya Dika" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-slate-900 font-semibold focus:outline-none focus:ring-2 focus:ring-emerald-500">
+        </div>
+
+        <div class="space-y-1">
+          <label>Nomor Telepon / WhatsApp</label>
+          <input type="text" id="memberFormNoTelp" placeholder="Contoh: 081234567890" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-slate-900 font-semibold focus:outline-none focus:ring-2 focus:ring-emerald-500">
+        </div>
+
+        <div class="space-y-1">
+          <label>Kode Member (Opsional)</label>
+          <input type="text" id="memberFormKode" placeholder="Dikosongkan untuk otomatis (MBR-xxx)" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-slate-900 font-semibold focus:outline-none focus:ring-2 focus:ring-emerald-500">
+        </div>
+
+        <div class="p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-[11px] text-emerald-800 font-medium">
+          🎉 Member baru otomatis mendapatkan hak <strong>Diskon 5%</strong> pada setiap transaksi kasir MoonCafe.
+        </div>
+
+        <div class="pt-3 flex items-center gap-3">
+          <button type="button" onclick="tutupModalTambahMember()" class="flex-1 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold cursor-pointer">
+            Batal
+          </button>
+          <button type="submit" id="btnSubmitFormMember" class="flex-1 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold shadow-md flex items-center justify-center gap-1.5 cursor-pointer">
+            <i data-lucide="check" class="w-4 h-4"></i> Simpan Member
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+
+
+  <!-- JAVASCRIPT: LOGIKA PENUH KASIR, CRUD, DASHBOARD, LAPORAN, & LOGIN -->
+  <script>
+    let databaseMenu = [];
+    let cart = [];
+    let activeCategory = 'Semua';
+    let selectedOrderType = 'dine_in';
+    let selectedMember = null;
+    let currentUser = null;
+
+    function formatRp(val) {
+      return "Rp" + Math.round(Number(val) || 0).toLocaleString('id-ID');
+    }
+
+    // 1. Cek Login Session
+    function cekSessionLogin() {
+      const saved = localStorage.getItem('mooncafe_user');
+      if (saved) {
+        currentUser = JSON.parse(saved);
+        updateUserUI();
+      } else {
+        // Tampilkan modal login jika belum login
+        document.getElementById('modalLogin').classList.remove('hidden');
+      }
+    }
+
+    async function prosesLoginKasir(event) {
+      event.preventDefault();
+      const u = document.getElementById('loginUsername').value.trim();
+      const p = document.getElementById('loginPassword').value.trim();
+      const btn = document.getElementById('btnLoginSubmit');
+
+      btn.disabled = true;
+      btn.innerText = 'Memverifikasi...';
+
+      try {
+        const res = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username: u, password: p })
+        });
+        const json = await res.json();
+
+        if (json.success) {
+          currentUser = json.user;
+          localStorage.setItem('mooncafe_user', JSON.stringify(currentUser));
+          updateUserUI();
+          document.getElementById('modalLogin').classList.add('hidden');
+        } else {
+          alert('❌ ' + json.message);
+        }
+      } catch (err) {
+        alert('Kesalahan koneksi: ' + err.message);
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = `<i data-lucide="log-in" class="w-4 h-4"></i> Masuk Sekarang`;
+        lucide.createIcons();
+      }
+    }
+
+    function updateUserUI() {
+      if (!currentUser) return;
+      document.getElementById('userNamaDisplay').innerText = currentUser.nama_petugas;
+      document.getElementById('userRoleDisplay').innerHTML = `
+        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> 
+        ${currentUser.role.toUpperCase()} Aktif
+      `;
+    }
+
+    function logoutKasir() {
+      if (confirm('Apakah Anda ingin keluar dari akun kasir ini?')) {
+        localStorage.removeItem('mooncafe_user');
+        currentUser = null;
+        document.getElementById('loginUsername').value = '';
+        document.getElementById('loginPassword').value = '';
+        document.getElementById('modalLogin').classList.remove('hidden');
+      }
+    }
+
+    // =========================================================================
+    // 🧭 NAVIGASI HALAMAN SPA (HALAMAN UTUH, BUKAN POPUP / DIALOG)
+    // =========================================================================
+    function navigasiKeHalaman(namaPage) {
+      const pages = ['kasir', 'dashboard', 'transaksi', 'menu', 'member', 'laporan', 'pengaturan'];
+      pages.forEach(p => {
+        const el = document.getElementById(`page-${p}`);
+        if (el) el.classList.add('hidden');
+
+        const btn = document.getElementById(`nav-${p}`);
+        if (btn) {
+          btn.className = "w-full flex items-center gap-3.5 px-4 py-3 rounded-2xl text-slate-400 hover:text-white hover:bg-slate-800/50 transition-colors text-left cursor-pointer group";
+        }
+      });
+
+      const activeEl = document.getElementById(`page-${namaPage}`);
+      if (activeEl) activeEl.classList.remove('hidden');
+
+      const activeBtn = document.getElementById(`nav-${namaPage}`);
+      if (activeBtn) {
+        activeBtn.className = "w-full flex items-center gap-3.5 px-4 py-3 rounded-2xl text-white font-bold bg-[#ff6900] shadow-lg shadow-orange-600/30 transition-all text-left cursor-pointer group";
+      }
+
+      if (namaPage === 'dashboard') loadDashboardStats();
+      else if (namaPage === 'transaksi') loadRiwayatTransaksi();
+      else if (namaPage === 'menu') { renderCrudMenuTable(); }
+      else if (namaPage === 'member') loadMembersList();
+      else if (namaPage === 'laporan') loadLaporanPenjualan();
+      else if (namaPage === 'pengaturan') loadPengaturanTokoData();
+      else if (namaPage === 'kasir') { renderCart(); }
+
+      lucide.createIcons();
+    }
+
+    // Aliases navigasi agar fungsi pemanggil tombol lama tetap berjalan mulus
+    function bukaDashboardModal() { navigasiKeHalaman('dashboard'); }
+    function tutupDashboardModal() { navigasiKeHalaman('kasir'); }
+    function bukaRiwayatTransaksi() { navigasiKeHalaman('transaksi'); }
+    function tutupRiwayatTransaksi() { navigasiKeHalaman('kasir'); }
+    function bukaManajemenMenu() { navigasiKeHalaman('menu'); }
+    function tutupManajemenMenu() { navigasiKeHalaman('kasir'); }
+    function bukaKelolaMember() { navigasiKeHalaman('member'); }
+    function tutupKelolaMember() { navigasiKeHalaman('kasir'); }
+    function bukaLaporanPenjualan() { navigasiKeHalaman('laporan'); }
+    function tutupLaporanPenjualan() { navigasiKeHalaman('kasir'); }
+    function bukaPengaturanModal() { navigasiKeHalaman('pengaturan'); }
+    function tutupPengaturanModal() { navigasiKeHalaman('kasir'); }
+
+    // 2. Ambil Menu dari MySQL
+    async function loadMenuFromAPI() {
+      try {
+        const res = await fetch('/api/menu');
+        const json = await res.json();
+        if (json.success) {
+          databaseMenu = json.data;
+          renderMenuGrid();
+          renderCrudMenuTable();
+        }
+      } catch (err) {
+        console.error('Gagal mengambil menu:', err);
+      }
+    }
+
+    // 3. Render Kartu Menu
+    function renderMenuGrid() {
+      const grid = document.getElementById('menuGrid');
+      grid.innerHTML = '';
+      const keyword = document.getElementById('searchMenuInput').value.toLowerCase();
+
+      const items = databaseMenu.filter(m => {
+        const matchCat = (activeCategory === 'Semua') || (m.nama_kategori === activeCategory);
+        const matchKey = m.nama_produk.toLowerCase().includes(keyword) || (m.deskripsi && m.deskripsi.toLowerCase().includes(keyword));
+        return matchCat && matchKey;
+      });
+
+      if (items.length === 0) {
+        grid.innerHTML = `
+          <div class="col-span-3 text-center py-16 text-slate-400">
+            <i data-lucide="utensils" class="w-10 h-10 mx-auto mb-2 opacity-40"></i>
+            <p class="text-sm font-bold">Tidak ada menu yang sesuai.</p>
+          </div>
+        `;
+        lucide.createIcons();
+        return;
+      }
+
+      items.forEach(item => {
+        const isHabis = item.stok <= 0;
+        const card = document.createElement('div');
+        card.className = "bg-white rounded-3xl p-3 border border-slate-100 hover:border-slate-200 hover:shadow-md transition-all flex flex-col group relative";
+        card.innerHTML = `
+          <div class="relative w-full aspect-[4/3] rounded-2xl overflow-hidden bg-slate-100 mb-3">
+            <img src="${item.gambar}" alt="${item.nama_produk}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+            <span class="absolute top-2 left-2 px-2 py-0.5 rounded-lg text-[10px] font-bold uppercase tracking-wider bg-slate-900/80 text-white backdrop-blur-xs">
+              ${item.nama_kategori}
+            </span>
+            <span class="absolute top-2 right-2 px-2 py-0.5 rounded-lg text-[10px] font-bold ${isHabis ? 'bg-rose-500 text-white' : 'bg-white/90 text-slate-700 shadow-xs'}">
+              ${isHabis ? 'Habis' : 'Stok: ' + item.stok}
+            </span>
+          </div>
+          
+          <div class="flex items-end justify-between px-1 pb-1">
+            <div class="min-w-0 pr-2">
+              <h4 class="font-extrabold text-slate-900 text-base leading-tight truncate" title="${item.nama_produk}">${item.nama_produk}</h4>
+              <p class="text-sm font-black text-slate-800 mt-1">${formatRp(item.harga)}</p>
+            </div>
+            
+            <button 
+              onclick="tambahItem(${item.id_produk})" 
+              ${isHabis ? 'disabled' : ''}
+              title="${isHabis ? 'Stok Habis' : 'Tambah ' + item.nama_produk}"
+              class="w-11 h-11 rounded-full ${isHabis ? 'bg-slate-300 cursor-not-allowed text-slate-400' : 'bg-[#ff6900] hover:bg-[#e05d00] active:scale-90 text-white shadow-lg shadow-orange-500/30'} flex items-center justify-center transition-all flex-shrink-0 cursor-pointer"
+            >
+              <svg class="w-6 h-6 stroke-white" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+              </svg>
+            </button>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+      lucide.createIcons();
+    }
+
+    function tambahItem(id) {
+      const item = databaseMenu.find(m => m.id_produk === id);
+      if (!item) return;
+
+      const ada = cart.find(c => c.id === id);
+      if (ada) {
+        if (ada.qty < item.stok) ada.qty += 1;
+        else alert(`Stok "${item.nama_produk}" hanya tersisa ${item.stok} porsi!`);
+      } else {
+        if (item.stok > 0) cart.push({ id: item.id_produk, nama: item.nama_produk, harga: item.harga, qty: 1 });
+        else alert(`Stok "${item.nama_produk}" habis!`);
+      }
+      renderCart();
+    }
+
+    function ubahQty(id, delta) {
+      const item = cart.find(c => c.id === id);
+      if (!item) return;
+
+      const menuItem = databaseMenu.find(m => m.id_produk === id);
+      const maxStok = menuItem ? menuItem.stok : 999;
+
+      if (delta > 0) {
+        if (item.qty >= maxStok) {
+          alert(`Stok maksimal "${item.nama}" hanya ${maxStok} porsi!`);
+          return;
+        }
+        item.qty += 1;
+      } else if (delta < 0) {
+        item.qty -= 1;
+        if (item.qty <= 0) {
+          cart = cart.filter(c => c.id !== id);
+        }
+      }
+      renderCart();
+    }
+
+    function hapusItem(id) {
+      cart = cart.filter(c => c.id !== id);
+      renderCart();
+    }
+
+    function kosongkanKeranjang() {
+      cart = [];
+      renderCart();
+    }
+
+    function hitungTotal() {
+      const subtotal = cart.reduce((sum, item) => sum + (item.harga * item.qty), 0);
+      let diskonTierPersen = 0;
+      if (subtotal >= 200000) diskonTierPersen = 15;
+      else if (subtotal >= 50000) diskonTierPersen = 10;
+
+      let diskonMemberPersen = selectedMember ? 5 : 0;
+      let totalDiskonPersen = diskonTierPersen + diskonMemberPersen;
+
+      const totalDiskonNominal = subtotal * (totalDiskonPersen / 100);
+      const dpp = Math.max(0, subtotal - totalDiskonNominal);
+      const pajak10 = dpp * 0.10;
+      const totalBayar = dpp + pajak10;
+
+      return { subtotal, diskonTierPersen, diskonMemberPersen, totalDiskonPersen, totalDiskonNominal, dpp, pajak10, totalBayar };
+    }
+
+    function renderCart() {
+      const list = document.getElementById('cartList');
+      list.innerHTML = '';
+
+      const totalItemCount = cart.reduce((sum, item) => sum + item.qty, 0);
+      document.getElementById('orderTitle').innerText = `Pesanan (${totalItemCount})`;
+      document.getElementById('btnProsesTransaksi').disabled = cart.length === 0;
+
+      if (cart.length === 0) {
+        list.innerHTML = `
+          <div class="h-44 flex flex-col items-center justify-center text-slate-300 space-y-1.5">
+            <i data-lucide="shopping-cart" class="w-8 h-8 opacity-40"></i>
+            <p class="text-xs font-bold text-slate-400">Belum ada pesanan dipilih</p>
+          </div>
+        `;
+      } else {
+        cart.forEach(item => {
+          const row = document.createElement('div');
+          row.className = "flex items-center justify-between gap-1.5 text-xs py-2 border-b border-slate-100 last:border-b-0";
+          row.innerHTML = `
+            <div class="flex-1 min-w-0 pr-1">
+              <p class="truncate font-bold text-slate-900 text-xs" title="${item.nama}">${item.nama}</p>
+              <p class="text-[10px] text-slate-400 font-medium">${formatRp(item.harga)}</p>
+            </div>
+
+            <!-- Tombol Kurangi [-], Nilai Qty, dan Tambah [+] -->
+            <div class="flex items-center bg-slate-100 rounded-lg p-0.5 border border-slate-200 flex-shrink-0">
+              <button type="button" onclick="ubahQty(${item.id}, -1)" title="Kurangi 1 porsi" class="w-6 h-6 flex items-center justify-center rounded-md bg-white hover:bg-slate-200 text-slate-700 font-bold shadow-xs cursor-pointer active:scale-95 transition-all">
+                <i data-lucide="minus" class="w-3.5 h-3.5"></i>
+              </button>
+              <span class="w-6 text-center text-xs font-black text-slate-900 select-none">${item.qty}</span>
+              <button type="button" onclick="ubahQty(${item.id}, 1)" title="Tambah 1 porsi" class="w-6 h-6 flex items-center justify-center rounded-md bg-white hover:bg-slate-200 text-slate-700 font-bold shadow-xs cursor-pointer active:scale-95 transition-all">
+                <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+              </button>
+            </div>
+
+            <div class="w-16 text-right font-black text-slate-900 text-xs flex-shrink-0">${formatRp(item.harga * item.qty)}</div>
+
+            <button type="button" onclick="hapusItem(${item.id})" title="Hapus semua porsi" class="text-slate-300 hover:text-rose-500 p-1 rounded-lg hover:bg-rose-50 transition-colors cursor-pointer flex-shrink-0">
+              <i data-lucide="trash-2" class="w-4 h-4"></i>
+            </button>
+          `;
+          list.appendChild(row);
+        });
+      }
+
+      const calc = hitungTotal();
+      document.getElementById('subtotalLabel').innerText = formatRp(calc.subtotal);
+      document.getElementById('diskonPercentLabel').innerText = `Diskon (${calc.totalDiskonPersen}%)`;
+      document.getElementById('diskonNominalLabel').innerText = `- ${formatRp(calc.totalDiskonNominal)}`;
+      document.getElementById('pajakLabel').innerText = formatRp(calc.pajak10);
+      document.getElementById('totalBayarBadge').innerText = formatRp(calc.totalBayar);
+
+      lucide.createIcons();
+    }
+
+    function filterByKategori(cat) {
+      activeCategory = cat;
+      const buttons = document.querySelectorAll('.cat-btn');
+      buttons.forEach(b => {
+        b.className = "cat-btn px-5 py-2 rounded-xl text-xs font-semibold bg-[#f1f5f9] text-slate-600 hover:text-slate-900 transition-all cursor-pointer";
+      });
+      const activeBtn = document.getElementById(`pill-${cat}`);
+      if (activeBtn) activeBtn.className = "cat-btn px-5 py-2 rounded-xl text-xs font-bold bg-[#ff6900] text-white shadow-sm transition-all cursor-pointer";
+      renderMenuGrid();
+    }
+
+    function filterMenu() {
+      renderMenuGrid();
+    }
+
+    // Modal Pembayaran Kasir
+    function bukaDialogPembayaran() {
+      if (cart.length === 0) return;
+      updateModalValues();
+      renderQuickMoneyButtons();
+      document.getElementById('modalCheckout').classList.remove('hidden');
+    }
+
+    function tutupDialogPembayaran() {
+      document.getElementById('modalCheckout').classList.add('hidden');
+    }
+
+    function updateModalValues() {
+      const calc = hitungTotal();
+      document.getElementById('modalSubtotal').innerText = formatRp(calc.subtotal);
+      document.getElementById('modalDiskon').innerText = `- ${formatRp(calc.totalDiskonNominal)} (${calc.totalDiskonPersen}%)`;
+      document.getElementById('modalPajak').innerText = formatRp(calc.pajak10);
+      document.getElementById('modalGrandTotal').innerText = formatRp(calc.totalBayar);
+
+      const itemsContainer = document.getElementById('modalItemsSummary');
+      itemsContainer.innerHTML = '';
+      cart.forEach(item => {
+        const div = document.createElement('div');
+        div.className = "flex justify-between";
+        div.innerHTML = `<span>${item.nama} x${item.qty}</span><span class="font-bold text-slate-800">${formatRp(item.harga * item.qty)}</span>`;
+        itemsContainer.appendChild(div);
+      });
+
+      hitungUangKembalian();
+    }
+
+    function renderQuickMoneyButtons() {
+      const calc = hitungTotal();
+      const container = document.getElementById('quickMoneyButtons');
+      const pas = Math.ceil(calc.totalBayar);
+      const suggestions = [pas, 50000, 100000, 200000].filter(v => v >= pas);
+      const unique = [...new Set(suggestions)].slice(0, 4);
+
+      container.innerHTML = '';
+      unique.forEach(val => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = "px-3 py-1.5 rounded-xl bg-slate-200 hover:bg-slate-300 text-[11px] font-bold text-slate-700 transition-colors cursor-pointer";
+        btn.innerText = val === pas ? 'Uang Pas' : formatRp(val);
+        btn.onclick = () => {
+          document.getElementById('uangDiterimaInput').value = val;
+          hitungUangKembalian();
+        };
+        container.appendChild(btn);
+      });
+    }
+
+    function pilihTipePesanan(tipe) {
+      selectedOrderType = tipe;
+      const btnDine = document.getElementById('modalBtnDineIn');
+      const btnTake = document.getElementById('modalBtnTakeAway');
+
+      if (tipe === 'dine_in') {
+        btnDine.className = "py-3.5 px-4 rounded-2xl border-2 border-[#ff6900] bg-orange-50 text-orange-950 flex items-center justify-center gap-2.5 font-bold shadow-sm transition-all cursor-pointer";
+        btnTake.className = "py-3.5 px-4 rounded-2xl border border-slate-200 text-slate-600 flex items-center justify-center gap-2.5 hover:bg-slate-50 transition-all cursor-pointer";
+      } else {
+        btnTake.className = "py-3.5 px-4 rounded-2xl border-2 border-[#ff6900] bg-orange-50 text-orange-950 flex items-center justify-center gap-2.5 font-bold shadow-sm transition-all cursor-pointer";
+        btnDine.className = "py-3.5 px-4 rounded-2xl border border-slate-200 text-slate-600 flex items-center justify-center gap-2.5 hover:bg-slate-50 transition-all cursor-pointer";
+      }
+    }
+
+    function toggleMember(isPunya) {
+      const btnNo = document.getElementById('btnMemberNo');
+      const btnYes = document.getElementById('btnMemberYes');
+      const box = document.getElementById('inputMemberBox');
+
+      if (isPunya) {
+        btnYes.className = "flex-1 py-3 rounded-xl text-xs font-bold border-2 border-amber-500 bg-amber-500 text-white shadow-sm transition-all cursor-pointer";
+        btnNo.className = "flex-1 py-3 rounded-xl text-xs font-bold border border-slate-300 bg-white text-slate-600 hover:bg-slate-50 transition-all cursor-pointer";
+        box.classList.remove('hidden');
+      } else {
+        btnNo.className = "flex-1 py-3 rounded-xl text-xs font-bold border-2 border-slate-700 bg-slate-800 text-white shadow-sm transition-all cursor-pointer";
+        btnYes.className = "flex-1 py-3 rounded-xl text-xs font-bold border border-amber-300 bg-white text-amber-800 hover:bg-amber-50 transition-all cursor-pointer";
+        box.classList.add('hidden');
+        document.getElementById('memberInput').value = '';
+        document.getElementById('memberStatusText').classList.add('hidden');
+        document.getElementById('memberSearchResults').classList.add('hidden');
+        selectedMember = null;
+        renderCart();
+        updateModalValues();
+      }
+    }
+
+    async function cariMemberRealtime() {
+      const keyword = document.getElementById('memberInput').value.trim();
+      const resultsBox = document.getElementById('memberSearchResults');
+      const statusText = document.getElementById('memberStatusText');
+
+      if (keyword.length < 2) {
+        resultsBox.classList.add('hidden');
+        return;
+      }
+
+      try {
+        const res = await fetch(`/api/members/search?q=${encodeURIComponent(keyword)}`);
+        const json = await res.json();
+        if (json.success && json.data.length > 0) {
+          resultsBox.innerHTML = '';
+          resultsBox.classList.remove('hidden');
+
+          json.data.forEach(m => {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = "w-full text-left p-2 rounded-lg bg-white border border-amber-200 hover:bg-amber-100 flex justify-between items-center text-xs font-bold text-slate-800 transition-colors cursor-pointer";
+            btn.innerHTML = `<span>${m.kode_member} - ${m.nama_member}</span><span class="text-[10px] text-amber-700 font-extrabold">${m.poin_loyalitas} Poin</span>`;
+            btn.onclick = () => {
+              selectedMember = m;
+              document.getElementById('memberInput').value = `${m.kode_member} - ${m.nama_member}`;
+              statusText.innerText = `Aktif (+5%)`;
+              statusText.classList.remove('hidden');
+              resultsBox.classList.add('hidden');
+              renderCart();
+              updateModalValues();
+            };
+            resultsBox.appendChild(btn);
+          });
+        } else {
+          resultsBox.classList.add('hidden');
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    function hitungUangKembalian() {
+      const calc = hitungTotal();
+      const bayar = parseFloat(document.getElementById('uangDiterimaInput').value) || 0;
+      const kembalian = bayar - calc.totalBayar;
+      const textEl = document.getElementById('kembalianText');
+
+      if (bayar === 0) {
+        textEl.className = "font-black text-slate-900 text-lg";
+        textEl.innerText = "Rp0";
+      } else if (kembalian >= 0) {
+        textEl.className = "font-black text-emerald-600 text-lg";
+        textEl.innerText = formatRp(kembalian);
+      } else {
+        textEl.className = "font-black text-rose-500 text-lg";
+        textEl.innerText = "Kurang " + formatRp(Math.abs(kembalian));
+      }
+    }
+
+    async function simpanTransaksiKeDatabase() {
+      const calc = hitungTotal();
+      const bayar = parseFloat(document.getElementById('uangDiterimaInput').value) || 0;
+
+      if (bayar < calc.totalBayar) {
+        alert("Nominal uang yang diserahkan kasir masih kurang dari total tagihan!");
+        return;
+      }
+
+      const btn = document.getElementById('btnKonfirmasiSimpan');
+      btn.disabled = true;
+      btn.innerText = 'Menyimpan ke MySQL...';
+
+      const payload = {
+        id_petugas: currentUser ? currentUser.id_petugas : 2,
+        id_member: selectedMember ? selectedMember.id_member : null,
+        tipe_pesanan: selectedOrderType,
+        items: cart.map(c => ({ id_produk: c.id, qty: c.qty })),
+        bayar: bayar
+      };
+
+      try {
+        const res = await fetch('/api/transaksi', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const result = await res.json();
+
+        if (result.success) {
+          tutupDialogPembayaran();
+          bukaStrukThermal(result.data);
+          cart = [];
+          renderCart();
+          await loadMenuFromAPI();
+        } else {
+          alert('❌ Gagal: ' + result.message);
+        }
+      } catch (err) {
+        alert('Terjadi kesalahan koneksi server: ' + err.message);
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = `<i data-lucide="check-circle" class="w-5 h-5"></i> Konfirmasi & Cetak Struk`;
+        lucide.createIcons();
+      }
+    }
+
+    function bukaStrukThermal(data) {
+      document.getElementById('receiptNota').innerText = data.nomor_nota;
+      document.getElementById('receiptOrderType').innerText = data.tipe_pesanan.toUpperCase();
+      document.getElementById('receiptCashier').innerText = currentUser ? currentUser.nama_petugas : "Kasir";
+      document.getElementById('receiptTime').innerText = new Date().toLocaleString('id-ID');
+      
+      const memberRow = document.getElementById('receiptMemberRow');
+      if (selectedMember) {
+        memberRow.classList.remove('hidden');
+        document.getElementById('receiptMemberName').innerText = `${selectedMember.nama_member} (+5%)`;
+      } else {
+        memberRow.classList.add('hidden');
+      }
+
+      const itemsList = document.getElementById('receiptItemsList');
+      itemsList.innerHTML = '';
+      data.items.forEach(item => {
+        const line = document.createElement('div');
+        line.className = "flex justify-between";
+        line.innerHTML = `<span>${item.nama_produk} x${item.qty}</span><span>${formatRp(item.harga * item.qty)}</span>`;
+        itemsList.appendChild(line);
+      });
+
+      document.getElementById('receiptSubtotal').innerText = formatRp(data.calc.subtotal);
+      document.getElementById('receiptDiskon').innerText = `- ${formatRp(data.calc.totalDiskonNominal)}`;
+      document.getElementById('receiptPajak').innerText = formatRp(data.calc.pajak10);
+      document.getElementById('receiptGrandTotal').innerText = formatRp(data.calc.grandTotal);
+      document.getElementById('receiptBayar').innerText = formatRp(data.bayar);
+      document.getElementById('receiptKembalian').innerText = formatRp(data.kembalian);
+
+      document.getElementById('modalStrukThermal').classList.remove('hidden');
+    }
+
+    function tutupStrukThermal() {
+      document.getElementById('modalStrukThermal').classList.add('hidden');
+    }
+
+    // Riwayat Transaksi Modal
+    async function bukaRiwayatTransaksi() {
+      const modal = document.getElementById('modalRiwayat');
+      const tbody = document.getElementById('riwayatTableBody');
+      tbody.innerHTML = `<tr><td colspan="6" class="text-center py-8 text-slate-400 font-bold">Memuat riwayat dari MySQL...</td></tr>`;
+      modal.classList.remove('hidden');
+
+      try {
+        const res = await fetch('/api/transaksi');
+        const json = await res.json();
+        if (json.success && json.data.length > 0) {
+          tbody.innerHTML = '';
+          json.data.forEach(tr => {
+            const trEl = document.createElement('tr');
+            trEl.className = "hover:bg-slate-50 transition-colors";
+            trEl.innerHTML = `
+              <td class="py-3 px-3 font-bold text-slate-900">${tr.nomor_nota}</td>
+              <td class="py-3 px-3 text-slate-500">${tr.waktu}</td>
+              <td class="py-3 px-3"><span class="px-2 py-0.5 rounded-md text-[10px] font-bold ${tr.tipe_pesanan === 'dine_in' ? 'bg-orange-100 text-orange-800' : 'bg-blue-100 text-blue-800'}">${tr.tipe_pesanan.toUpperCase()}</span></td>
+              <td class="py-3 px-3 text-slate-700">${tr.nama_member || '<span class="text-slate-400">Umum</span>'}</td>
+              <td class="py-3 px-3 font-black text-slate-900">${formatRp(tr.grand_total)}</td>
+              <td class="py-3 px-3 text-center">
+                <button onclick="cetakUlangStruk(${tr.id_transaksi})" class="px-3 py-1 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-[10px] transition-colors cursor-pointer">
+                  Cetak Ulang
+                </button>
+              </td>
+            `;
+            tbody.appendChild(trEl);
+          });
+        } else {
+          tbody.innerHTML = `<tr><td colspan="6" class="text-center py-8 text-slate-400 font-bold">Belum ada transaksi di database.</td></tr>`;
+        }
+      } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="6" class="text-center py-8 text-rose-500 font-bold">Gagal memuat: ${err.message}</td></tr>`;
+      }
+    }
+
+    function tutupRiwayatTransaksi() {
+      document.getElementById('modalRiwayat').classList.add('hidden');
+    }
+
+    async function cetakUlangStruk(id) {
+      try {
+        const res = await fetch(`/api/transaksi/${id}`);
+        const json = await res.json();
+        if (json.success) {
+          tutupRiwayatTransaksi();
+          const tr = json.data;
+          const fakeData = {
+            nomor_nota: tr.header.nomor_nota,
+            tipe_pesanan: tr.header.tipe_pesanan,
+            items: tr.items,
+            calc: {
+              subtotal: tr.header.subtotal,
+              totalDiskonNominal: tr.header.total_diskon_nominal,
+              pajak10: tr.header.pajak_10_persen,
+              grandTotal: tr.header.grand_total
+            },
+            bayar: tr.header.bayar,
+            kembalian: tr.header.kembalian
+          };
+          selectedMember = tr.header.nama_member ? { nama_member: tr.header.nama_member } : null;
+          bukaStrukThermal(fakeData);
+        }
+      } catch (err) {
+        alert('Gagal mengambil detail nota: ' + err.message);
+      }
+    }
+
+    // =========================================================================
+    // 🌟 DASHBOARD MODAL & REALTIME STATISTIK 🌟
+    // =========================================================================
+    async function bukaDashboardModal() {
+      document.getElementById('modalDashboard').classList.remove('hidden');
+      try {
+        const res = await fetch('/api/dashboard/stats');
+        const json = await res.json();
+        if (json.success) {
+          const d = json.data;
+          document.getElementById('dashOmzetHariIni').innerText = formatRp(d.omzetHariIni);
+          document.getElementById('dashTrxHariIni').innerText = `${d.transaksiHariIni} Transaksi`;
+          document.getElementById('dashTotalProduk').innerText = `${d.totalProduk} Menu`;
+          document.getElementById('dashTotalStok').innerText = `Total Stok: ${d.totalStok} porsi`;
+          document.getElementById('dashTotalMember').innerText = `${d.totalMember} Orang`;
+
+          // Top Menus
+          const topBox = document.getElementById('dashTopMenuContainer');
+          topBox.innerHTML = '';
+          if (d.topMenus && d.topMenus.length > 0) {
+            d.topMenus.forEach(m => {
+              const div = document.createElement('div');
+              div.className = "flex items-center justify-between p-3 rounded-xl bg-white border border-slate-200";
+              div.innerHTML = `
+                <div class="flex items-center gap-3">
+                  <img src="${m.gambar}" class="w-10 h-10 rounded-xl object-cover">
+                  <div>
+                    <h6 class="font-extrabold text-xs text-slate-900">${m.nama_produk}</h6>
+                    <span class="text-[10px] text-slate-400 font-bold uppercase">${m.nama_kategori}</span>
+                  </div>
+                </div>
+                <span class="px-2.5 py-1 rounded-lg bg-orange-100 text-orange-800 text-xs font-black">
+                  ${m.total_terjual} Porsi
+                </span>
+              `;
+              topBox.appendChild(div);
+            });
+          } else {
+            topBox.innerHTML = `<p class="text-xs text-slate-400 font-medium py-3 text-center">Belum ada menu yang terjual.</p>`;
+          }
+
+          // Recent Orders
+          const recentBox = document.getElementById('dashRecentOrdersContainer');
+          recentBox.innerHTML = '';
+          if (d.recentOrders && d.recentOrders.length > 0) {
+            d.recentOrders.forEach(o => {
+              const div = document.createElement('div');
+              div.className = "flex items-center justify-between p-2.5 rounded-xl bg-white border border-slate-200 text-xs";
+              div.innerHTML = `
+                <div>
+                  <p class="font-bold text-slate-900">${o.nomor_nota}</p>
+                  <p class="text-[10px] text-slate-400">${o.jam} • ${o.tipe_pesanan.toUpperCase()}</p>
+                </div>
+                <span class="font-black text-slate-900">${formatRp(o.grand_total)}</span>
+              `;
+              recentBox.appendChild(div);
+            });
+          } else {
+            recentBox.innerHTML = `<p class="text-xs text-slate-400 font-medium py-3 text-center">Belum ada transaksi.</p>`;
+          }
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    function tutupDashboardModal() {
+      document.getElementById('modalDashboard').classList.add('hidden');
+    }
+
+    // =========================================================================
+    // 🌟 LAPORAN PENJUALAN MODAL 🌟
+    // =========================================================================
+    async function bukaLaporanPenjualan() {
+      document.getElementById('modalLaporan').classList.remove('hidden');
+      const tbody = document.getElementById('laporanTableBody');
+      tbody.innerHTML = `<tr><td colspan="8" class="text-center py-8 text-slate-400 font-bold">Memuat rekap laporan dari MySQL...</td></tr>`;
+
+      try {
+        const res = await fetch('/api/laporan');
+        const json = await res.json();
+        if (json.success) {
+          const s = json.data.summary;
+          document.getElementById('lapSubtotal').innerText = formatRp(s.total_subtotal);
+          document.getElementById('lapDiskon').innerText = "- " + formatRp(s.total_diskon);
+          document.getElementById('lapPajak').innerText = formatRp(s.total_pajak);
+          document.getElementById('lapGrandTotal').innerText = formatRp(s.total_bersih);
+
+          tbody.innerHTML = '';
+          if (json.data.transactions && json.data.transactions.length > 0) {
+            json.data.transactions.forEach(t => {
+              const tr = document.createElement('tr');
+              tr.className = "hover:bg-slate-50";
+              tr.innerHTML = `
+                <td class="py-3 px-3 font-bold text-slate-900">${t.nomor_nota}</td>
+                <td class="py-3 px-3 text-slate-500">${t.waktu}</td>
+                <td class="py-3 px-3 text-slate-700">${t.nama_petugas}</td>
+                <td class="py-3 px-3 text-slate-700">${t.pelanggan}</td>
+                <td class="py-3 px-3">${formatRp(t.subtotal)}</td>
+                <td class="py-3 px-3 text-rose-600">- ${formatRp(t.total_diskon_nominal)}</td>
+                <td class="py-3 px-3">${formatRp(t.pajak_10_persen)}</td>
+                <td class="py-3 px-3 font-black text-slate-900">${formatRp(t.grand_total)}</td>
+              `;
+              tbody.appendChild(tr);
+            });
+          } else {
+            tbody.innerHTML = `<tr><td colspan="8" class="text-center py-8 text-slate-400 font-bold">Belum ada riwayat transaksi untuk laporan.</td></tr>`;
+          }
+        }
+      } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="8" class="text-center py-8 text-rose-500 font-bold">Gagal: ${err.message}</td></tr>`;
+      }
+    }
+
+    function tutupLaporanPenjualan() {
+      document.getElementById('modalLaporan').classList.add('hidden');
+    }
+
+    // =========================================================================
+    // CRUD MENU MODAL
+    // =========================================================================
+    function bukaManajemenMenu() {
+      document.getElementById('modalManajemenMenu').classList.remove('hidden');
+      renderCrudMenuTable();
+    }
+
+    function tutupManajemenMenu() {
+      document.getElementById('modalManajemenMenu').classList.add('hidden');
+    }
+
+    function renderCrudMenuTable() {
+      const tbody = document.getElementById('crudMenuTableBody');
+      if (!tbody) return;
+      tbody.innerHTML = '';
+
+      const keyword = (document.getElementById('searchCrudInput')?.value || '').toLowerCase();
+      const filtered = databaseMenu.filter(m => 
+        m.nama_produk.toLowerCase().includes(keyword) || 
+        m.nama_kategori.toLowerCase().includes(keyword) ||
+        (m.deskripsi && m.deskripsi.toLowerCase().includes(keyword))
+      );
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" class="text-center py-8 text-slate-400 font-bold">Tidak ada menu yang ditemukan.</td></tr>`;
+        return;
+      }
+
+      filtered.forEach(item => {
+        const tr = document.createElement('tr');
+        tr.className = "hover:bg-slate-50 transition-colors";
+        tr.innerHTML = `
+          <td class="py-3 px-3">
+            <div class="flex items-center gap-3">
+              <img src="${item.gambar}" alt="${item.nama_produk}" class="w-10 h-10 rounded-xl object-cover border border-slate-200 flex-shrink-0">
+              <div>
+                <p class="font-extrabold text-slate-900">${item.nama_produk}</p>
+                <p class="text-[10px] text-slate-400">ID: #${item.id_produk}</p>
+              </div>
+            </div>
+          </td>
+          <td class="py-3 px-3">
+            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-slate-100 text-slate-700 border border-slate-200">
+              ${item.nama_kategori}
+            </span>
+          </td>
+          <td class="py-3 px-3 font-black text-slate-900">${formatRp(item.harga)}</td>
+          <td class="py-3 px-3 text-center">
+            <span class="px-2 py-0.5 rounded-lg text-xs font-bold ${item.stok > 0 ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'}">
+              ${item.stok}
+            </span>
+          </td>
+          <td class="py-3 px-3 max-w-xs truncate text-slate-500 font-normal" title="${item.deskripsi || '-'}">
+            ${item.deskripsi || '<span class="italic text-slate-300">Belum ada komposisi</span>'}
+          </td>
+          <td class="py-3 px-3 text-center">
+            <div class="flex items-center justify-center gap-1.5">
+              <button onclick="bukaFormEditMenu(${item.id_produk})" title="Edit Menu" class="p-1.5 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-700 transition-colors cursor-pointer">
+                <i data-lucide="edit-3" class="w-4 h-4"></i>
+              </button>
+              <button onclick="hapusMenu(${item.id_produk}, '${item.nama_produk}')" title="Hapus Menu" class="p-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 transition-colors cursor-pointer">
+                <i data-lucide="trash-2" class="w-4 h-4"></i>
+              </button>
+            </div>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+      lucide.createIcons();
+    }
+
+    function bukaFormTambahMenu() {
+      document.getElementById('formMenuTitle').innerText = 'Tambah Menu Baru';
+      document.getElementById('formMenuId').value = '';
+      document.getElementById('formMenuNama').value = '';
+      document.getElementById('formMenuKategori').value = '1';
+      document.getElementById('formMenuHarga').value = '';
+      document.getElementById('formMenuStok').value = '50';
+      document.getElementById('formMenuGambar').value = '';
+      document.getElementById('formMenuDeskripsi').value = '';
+      document.getElementById('modalFormMenu').classList.remove('hidden');
+    }
+
+    function bukaFormEditMenu(id) {
+      const item = databaseMenu.find(m => m.id_produk === id);
+      if (!item) return;
+
+      document.getElementById('formMenuTitle').innerText = 'Edit Menu: ' + item.nama_produk;
+      document.getElementById('formMenuId').value = item.id_produk;
+      document.getElementById('formMenuNama').value = item.nama_produk;
+      document.getElementById('formMenuKategori').value = item.id_kategori;
+      document.getElementById('formMenuHarga').value = item.harga;
+      document.getElementById('formMenuStok').value = item.stok;
+      document.getElementById('formMenuGambar').value = item.gambar || '';
+      document.getElementById('formMenuDeskripsi').value = item.deskripsi || '';
+      document.getElementById('modalFormMenu').classList.remove('hidden');
+    }
+
+    function tutupFormMenu() {
+      document.getElementById('modalFormMenu').classList.add('hidden');
+    }
+
+    async function simpanMenu(event) {
+      event.preventDefault();
+
+      const id = document.getElementById('formMenuId').value;
+      const nama = document.getElementById('formMenuNama').value.trim();
+      const idKategori = document.getElementById('formMenuKategori').value;
+      const harga = parseFloat(document.getElementById('formMenuHarga').value) || 0;
+      const stok = parseInt(document.getElementById('formMenuStok').value, 10) || 0;
+      const gambar = document.getElementById('formMenuGambar').value.trim();
+      const deskripsi = document.getElementById('formMenuDeskripsi').value.trim();
+
+      const btn = document.getElementById('btnSubmitFormMenu');
+      btn.disabled = true;
+      btn.innerText = 'Menyimpan...';
+
+      const payload = { id_kategori: idKategori, nama_produk: nama, deskripsi: deskripsi, harga: harga, stok: stok, gambar: gambar };
+
+      try {
+        const url = id ? `/api/menu/${id}` : '/api/menu';
+        const method = id ? 'PUT' : 'POST';
+
+        const res = await fetch(url, {
+          method: method,
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const json = await res.json();
+
+        if (json.success) {
+          alert('✅ Sukses: ' + json.message);
+          tutupFormMenu();
+          await loadMenuFromAPI();
+        } else {
+          alert('❌ Gagal: ' + json.message);
+        }
+      } catch (err) {
+        alert('Kesalahan: ' + err.message);
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = `<i data-lucide="check" class="w-4 h-4"></i> Simpan Menu`;
+        lucide.createIcons();
+      }
+    }
+
+    async function hapusMenu(id, nama) {
+      if (!confirm(`Hapus menu "${nama}" dari database MoonCafe?`)) return;
+
+      try {
+        const res = await fetch(`/api/menu/${id}`, { method: 'DELETE' });
+        const json = await res.json();
+        if (json.success) {
+          alert('✅ ' + json.message);
+          await loadMenuFromAPI();
+        } else {
+          alert('⚠️ ' + json.message);
+        }
+      } catch (err) {
+        alert('Kesalahan: ' + err.message);
+      }
+    }
+
+    // =========================================================================
+    // 🌟 KELOLA MEMBER LOYALITAS 🌟
+    // =========================================================================
+    let databaseMembers = [];
+
+    async function loadMembersList() {
+      try {
+        const res = await fetch('/api/members');
+        const json = await res.json();
+        if (json.success) {
+          databaseMembers = json.data;
+          renderMemberTable(databaseMembers);
+          document.getElementById('badgeTotalMemberAktif').innerText = `${databaseMembers.length} Member Terdaftar`;
+        }
+      } catch (err) {
+        console.error('Gagal mengambil daftar member:', err);
+      }
+    }
+
+    function renderMemberTable(members) {
+      const tbody = document.getElementById('tbodyMemberTable');
+      if (!members || members.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" class="py-8 text-center text-slate-400">Tidak ada data member yang ditemukan.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = members.map(m => `
+        <tr class="hover:bg-slate-50/80 transition-colors">
+          <td class="py-3 px-4">
+            <span class="px-2.5 py-1 rounded-lg bg-orange-50 text-orange-600 font-mono font-bold text-[11px] border border-orange-200">
+              ${m.kode_member}
+            </span>
+          </td>
+          <td class="py-3 px-4 font-bold text-slate-900">${m.nama_member}</td>
+          <td class="py-3 px-4 text-slate-500">${m.no_telp || '-'}</td>
+          <td class="py-3 px-4 text-center">
+            <span class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 font-bold text-[10px]">
+              Diskon ${m.diskon_persen}%
+            </span>
+          </td>
+          <td class="py-3 px-4 text-center font-bold text-amber-600">${m.poin_loyalitas || 0} Poin</td>
+          <td class="py-3 px-4 text-center">
+            <button onclick="hapusMember(${m.id_member}, '${m.nama_member}')" class="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer" title="Hapus Member">
+              <i data-lucide="trash-2" class="w-4 h-4"></i>
+            </button>
+          </td>
+        </tr>
+      `).join('');
+      lucide.createIcons();
+    }
+
+    function filterMemberTable() {
+      const q = (document.getElementById('inputCariMemberTabel').value || '').toLowerCase();
+      const filtered = databaseMembers.filter(m => 
+        m.nama_member.toLowerCase().includes(q) || 
+        m.kode_member.toLowerCase().includes(q) || 
+        (m.no_telp && m.no_telp.toLowerCase().includes(q))
+      );
+      renderMemberTable(filtered);
+    }
+
+    function bukaModalTambahMember() {
+      document.getElementById('memberFormNama').value = '';
+      document.getElementById('memberFormNoTelp').value = '';
+      document.getElementById('memberFormKode').value = '';
+      document.getElementById('modalFormMember').classList.remove('hidden');
+    }
+
+    function tutupModalTambahMember() {
+      document.getElementById('modalFormMember').classList.add('hidden');
+    }
+
+    async function simpanMemberBaru(event) {
+      event.preventDefault();
+      const nama = document.getElementById('memberFormNama').value.trim();
+      const telp = document.getElementById('memberFormNoTelp').value.trim();
+      const kode = document.getElementById('memberFormKode').value.trim();
+      const btn = document.getElementById('btnSubmitFormMember');
+
+      btn.disabled = true;
+      btn.innerText = 'Menyimpan...';
+
+      try {
+        const res = await fetch('/api/members', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ nama_member: nama, no_telp: telp, kode_member: kode })
+        });
+        const json = await res.json();
+        if (json.success) {
+          alert('✅ ' + json.message);
+          tutupModalTambahMember();
+          await loadMembersList();
+        } else {
+          alert('❌ Gagal: ' + json.message);
+        }
+      } catch (err) {
+        alert('Kesalahan: ' + err.message);
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = `<i data-lucide="check" class="w-4 h-4"></i> Simpan Member`;
+        lucide.createIcons();
+      }
+    }
+
+    async function hapusMember(id, nama) {
+      if (!confirm(`Hapus member "${nama}"? Pelanggan ini tidak akan lagi mendapatkan diskon 5%.`)) return;
+
+      try {
+        const res = await fetch(`/api/members/${id}`, { method: 'DELETE' });
+        const json = await res.json();
+        if (json.success) {
+          alert('✅ ' + json.message);
+          await loadMembersList();
+        } else {
+          alert('⚠️ ' + json.message);
+        }
+      } catch (err) {
+        alert('Kesalahan: ' + err.message);
+      }
+    }
+
+    // =========================================================================
+    // 🌟 PENGATURAN TOKO & STRUK KASIR 🌟
+    // =========================================================================
+    async function loadPengaturanTokoData() {
+      try {
+        const res = await fetch('/api/pengaturan-struk');
+        const json = await res.json();
+        if (json.success && json.data) {
+          document.getElementById('settingNamaToko').value = json.data.nama_resto || 'MoonCafe - Cafe & Resto';
+          document.getElementById('settingAlamatToko').value = json.data.alamat || 'Jl. D.I. Panjaitan No. 128, Purwokerto';
+          document.getElementById('settingNoTelepon').value = json.data.no_telepon || '(0281) 635888';
+          document.getElementById('settingFooterPesan').value = json.data.pesan_footer || 'Terima Kasih Atas Kunjungan Anda!';
+        }
+      } catch (err) {
+        console.error('Gagal mengambil pengaturan:', err);
+      }
+    }
+
+    async function simpanPengaturanToko(event) {
+      event.preventDefault();
+      const nama = document.getElementById('settingNamaToko').value.trim();
+      const alamat = document.getElementById('settingAlamatToko').value.trim();
+      const telp = document.getElementById('settingNoTelepon').value.trim();
+      const footer = document.getElementById('settingFooterPesan').value.trim();
+      const btn = document.getElementById('btnSimpanSetting');
+
+      btn.disabled = true;
+      btn.innerText = 'Menyimpan ke MySQL...';
+
+      try {
+        const res = await fetch('/api/pengaturan-struk', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ nama_resto: nama, alamat: alamat, no_telepon: telp, pesan_footer: footer })
+        });
+        const json = await res.json();
+        if (json.success) {
+          alert('✅ ' + json.message);
+          await loadPengaturanTokoData();
+        } else {
+          alert('❌ Gagal: ' + json.message);
+        }
+      } catch (err) {
+        alert('Kesalahan: ' + err.message);
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = `<i data-lucide="save" class="w-4 h-4"></i> Simpan Perubahan Pengaturan`;
+        lucide.createIcons();
+      }
+    }
+
+    function toggleFullscreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen();
+      } else {
+        document.exitFullscreen();
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', async () => {
+      cekSessionLogin();
+      await loadMenuFromAPI();
+      lucide.createIcons();
+    });
+  </script>
+</body>
+</html>

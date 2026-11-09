@@ -1,0 +1,31 @@
+{
+  "name": "pos-kasir-mooncafe",
+  "version": "1.0.0",
+  "description": "Aplikasi Web POS Kasir MoonCafe - Bootcamp UKK 2026 Pemrogram Junior",
+  "main": "src/app.js",
+  "scripts": {
+    "start": "node src/app.js",
+    "dev": "node --watch src/app.js",
+    "dev:nodemon": "nodemon src/app.js",
+    "test": "jest --verbose"
+  },
+  "keywords": [
+    "pos",
+    "kasir-restoran",
+    "mooncafe",
+    "ukk-2026",
+    "junior-coder",
+    "jest",
+    "express"
+  ],
+  "author": "Saladin",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.19.2",
+    "mysql2": "^3.9.7"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "nodemon": "^3.1.14"
+  }
+}

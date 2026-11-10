@@ -15,8 +15,75 @@
 
 const express = require('express');
 const router = express.Router();
+const path = require('path');
+const fs = require('fs');
+const multer = require('multer');
 const { pool } = require('../config/db');
 const { kalkulasiTransaksi, hitungKembalian } = require('../helpers/kalkulator');
+
+// Konfigurasi Multer untuk Penyimpanan Foto Produk Lokal di Server
+const uploadDir = path.join(__dirname, '../../public/uploads');
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+}
+
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, uploadDir);
+  },
+  filename: function (req, file, cb) {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+    const cleanExt = path.extname(file.originalname).toLowerCase() || '.jpg';
+    cb(null, 'menu-' + uniqueSuffix + cleanExt);
+  }
+});
+
+const upload = multer({
+  storage: storage,
+  limits: { fileSize: 5 * 1024 * 1024 }, // Batas ukuran 5MB
+  fileFilter: function (req, file, cb) {
+    const filetypes = /jpeg|jpg|png|webp|gif/;
+    const ext = filetypes.test(path.extname(file.originalname).toLowerCase());
+    const mime = filetypes.test(file.mimetype);
+    if (ext && mime) {
+      return cb(null, true);
+    }
+    cb(new Error('Format file tidak didukung. Harap upload gambar JPG, PNG, WEBP, atau GIF.'));
+  }
+});
+
+// =====================================================================
+// ENDPOINT UPLOAD FOTO PRODUK KE PENYIMPANAN LOKAL
+// =====================================================================
+/**
+ * POST /api/upload-gambar
+ * Menerima file multipart/form-data dengan field 'foto'
+ * Menyimpan file secara lokal di public/uploads/ dan mengembalikan relative URL
+ */
+router.post('/upload-gambar', (req, res) => {
+  upload.single('foto')(req, res, function (err) {
+    if (err instanceof multer.MulterError) {
+      if (err.code === 'LIMIT_FILE_SIZE') {
+        return res.status(400).json({ success: false, message: 'Ukuran foto maksimal 5MB.' });
+      }
+      return res.status(400).json({ success: false, message: 'Gagal mengunggah foto: ' + err.message });
+    } else if (err) {
+      return res.status(400).json({ success: false, message: err.message });
+    }
+
+    if (!req.file) {
+      return res.status(400).json({ success: false, message: 'Tidak ada file gambar yang dipilih.' });
+    }
+
+    const fileUrl = `/uploads/${req.file.filename}`;
+    res.json({
+      success: true,
+      message: 'Foto produk berhasil disimpan di server lokal!',
+      url: fileUrl,
+      filename: req.file.filename
+    });
+  });
+});
 
 // =====================================================================
 // 1. AUTENTIKASI LOGIN KASIR / ADMIN

@@ -156,19 +156,19 @@
         </button>
 
         <!-- 6. MANAJEMEN KARYAWAN (KHUSUS ADMIN) -->
-        <button onclick="navigasiKeHalaman('karyawan')" id="nav-karyawan" class="w-full flex items-center gap-3.5 px-4 py-3 rounded-2xl text-[#B8ADA4] hover:text-white hover:bg-[#362B26]/60 transition-colors text-left cursor-pointer group">
+        <button onclick="navigasiKeHalaman('karyawan')" id="nav-karyawan" class="w-full flex items-center gap-3.5 px-4 py-3 rounded-2xl text-[#B8ADA4] hover:text-white hover:bg-[#362B26]/60 transition-colors text-left cursor-pointer group hidden">
           <i data-lucide="user-cog" class="w-4 h-4 transition-transform group-hover:scale-110"></i>
           <span>Karyawan</span>
         </button>
 
         <!-- 7. LAPORAN PENJUALAN (KHUSUS ADMIN) -->
-        <button onclick="navigasiKeHalaman('laporan')" id="nav-laporan" class="w-full flex items-center gap-3.5 px-4 py-3 rounded-2xl text-[#B8ADA4] hover:text-white hover:bg-[#362B26]/60 transition-colors text-left cursor-pointer group">
+        <button onclick="navigasiKeHalaman('laporan')" id="nav-laporan" class="w-full flex items-center gap-3.5 px-4 py-3 rounded-2xl text-[#B8ADA4] hover:text-white hover:bg-[#362B26]/60 transition-colors text-left cursor-pointer group hidden">
           <i data-lucide="bar-chart-2" class="w-4 h-4 transition-transform group-hover:scale-110"></i>
           <span>Laporan</span>
         </button>
 
         <!-- 8. PENGATURAN TOKO & STRUK (KHUSUS ADMIN) -->
-        <button onclick="navigasiKeHalaman('pengaturan')" id="nav-pengaturan" class="w-full flex items-center gap-3.5 px-4 py-3 rounded-2xl text-[#B8ADA4] hover:text-white hover:bg-[#362B26]/60 transition-colors text-left cursor-pointer group">
+        <button onclick="navigasiKeHalaman('pengaturan')" id="nav-pengaturan" class="w-full flex items-center gap-3.5 px-4 py-3 rounded-2xl text-[#B8ADA4] hover:text-white hover:bg-[#362B26]/60 transition-colors text-left cursor-pointer group hidden">
           <i data-lucide="settings" class="w-4 h-4 transition-transform group-hover:scale-110"></i>
           <span>Pengaturan</span>
         </button>
@@ -207,9 +207,6 @@
             <h2 class="text-2xl font-extrabold text-[#1E1815] tracking-tight">Kasir</h2>
           </div>
           <div class="flex items-center gap-2 text-[#7A6F66]">
-            <button onclick="bukaFormTambahMenu()" title="Tambah Menu Baru" class="px-3.5 py-2 rounded-xl bg-[#FAF0E7] border border-[#E8D0C0] text-[#C86A32] hover:bg-[#F4E3D3] font-bold text-xs flex items-center gap-1.5 transition-colors cursor-pointer shadow-2xs">
-              <i data-lucide="plus" class="w-3.5 h-3.5"></i> Tambah Menu
-            </button>
             <button onclick="loadMenuFromAPI()" title="Segarkan data menu dari database" class="w-9 h-9 rounded-xl border border-[#E7DFD3] bg-white flex items-center justify-center text-[#7A6F66] hover:text-[#1E1815] hover:bg-[#EFE9DF] transition-colors cursor-pointer shadow-2xs">
               <i data-lucide="refresh-cw" class="w-4 h-4"></i>
             </button>
@@ -323,7 +320,7 @@
         <button onclick="loadDashboardStats()" class="px-3.5 py-1.5 rounded-xl bg-[#362B26] hover:bg-[#483A33] text-[#EFE9DF] border border-[#483A33] text-xs font-bold flex items-center gap-1.5 cursor-pointer transition-colors shadow-2xs">
           <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Segarkan Data
         </button>
-        <button onclick="navigasiKeHalaman('kasir')" class="px-3.5 py-1.5 rounded-xl bg-[#C86A32] text-white hover:bg-[#B05724] text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-md shadow-[#C86A32]/20">
+        <button onclick="navigasiKeHalaman('kasir')" id="btnHeaderBukaKasirDashboard" class="px-3.5 py-1.5 rounded-xl bg-[#C86A32] text-white hover:bg-[#B05724] text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-md shadow-[#C86A32]/20">
           <i data-lucide="printer" class="w-3.5 h-3.5"></i> Buka Kasir
         </button>
       </div>
@@ -540,7 +537,7 @@
         <button onclick="loadRiwayatTransaksi()" class="px-3.5 py-1.5 rounded-xl bg-[#362B26] hover:bg-[#483A33] text-[#EFE9DF] border border-[#483A33] text-xs font-bold flex items-center gap-1.5 cursor-pointer transition-colors shadow-2xs">
           <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Segarkan Riwayat
         </button>
-        <button onclick="navigasiKeHalaman('kasir')" class="px-3.5 py-1.5 rounded-xl bg-[#C86A32] text-white hover:bg-[#B05724] text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-md shadow-[#C86A32]/20">
+        <button onclick="navigasiKeHalaman('kasir')" id="btnHeaderBukaKasirDashboard" class="px-3.5 py-1.5 rounded-xl bg-[#C86A32] text-white hover:bg-[#B05724] text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-md shadow-[#C86A32]/20">
           <i data-lucide="printer" class="w-3.5 h-3.5"></i> Buka Kasir
         </button>
       </div>
@@ -1550,12 +1547,17 @@
 
     // 1. Cek Login Session & Tampilan Layar Penuh
     function cekSessionLogin() {
-      const saved = localStorage.getItem('mooncafe_user');
+      const saved = localStorage.getItem('mooncafe_user') || sessionStorage.getItem('mooncafe_user');
       const pageLogin = document.getElementById('pageLogin');
       if (saved) {
         currentUser = JSON.parse(saved);
         updateUserUI();
         if (pageLogin) pageLogin.classList.add('hidden');
+        if (currentUser.role === 'admin') {
+          navigasiKeHalaman('dashboard');
+        } else {
+          navigasiKeHalaman('kasir');
+        }
       } else {
         if (pageLogin) pageLogin.classList.remove('hidden');
         setTimeout(() => {
@@ -1652,37 +1654,66 @@
       }
     }
 
+    // Daftar halaman yang sah untuk tiap peran (Role-Based Access Control)
+    const KASIR_PAGES = ['kasir', 'dashboard', 'transaksi', 'menu', 'member'];
+    const ADMIN_PAGES = ['dashboard', 'transaksi', 'menu', 'member', 'karyawan', 'laporan', 'pengaturan'];
+
     function updateUserUI() {
       if (!currentUser) return;
       document.getElementById('userNamaDisplay').innerText = currentUser.nama_petugas;
       
+      const role = currentUser.role;
+      const navKasir = document.getElementById('nav-kasir');
+      const navDashboard = document.getElementById('nav-dashboard');
+      const navTransaksi = document.getElementById('nav-transaksi');
+      const navMenu = document.getElementById('nav-menu');
+      const navMember = document.getElementById('nav-member');
       const navKaryawan = document.getElementById('nav-karyawan');
       const navLaporan = document.getElementById('nav-laporan');
       const navPengaturan = document.getElementById('nav-pengaturan');
       const dashKasirView = document.getElementById('dashboardKasirView');
       const dashAdminView = document.getElementById('dashboardAdminView');
+      const btnBukaKasirDash = document.getElementById('btnHeaderBukaKasirDashboard');
+      const btnBukaKasirTrans = document.getElementById('btnHeaderBukaKasirTransaksi');
 
-      if (currentUser.role === 'admin') {
+      if (role === 'admin') {
         document.getElementById('userRoleDisplay').innerHTML = `
           <span class="w-1.5 h-1.5 rounded-full bg-[#C86A32] animate-pulse"></span> 
           ADMINISTRATOR
         `;
+        // Untuk Admin: Kasir (layar POS kasir) DIHILANGKAN agar ringkas
+        if (navKasir) navKasir.classList.add('hidden');
+        if (navDashboard) navDashboard.classList.remove('hidden');
+        if (navTransaksi) navTransaksi.classList.remove('hidden');
+        if (navMenu) navMenu.classList.remove('hidden');
+        if (navMember) navMember.classList.remove('hidden');
         if (navKaryawan) navKaryawan.classList.remove('hidden');
         if (navLaporan) navLaporan.classList.remove('hidden');
         if (navPengaturan) navPengaturan.classList.remove('hidden');
+
         if (dashKasirView) dashKasirView.classList.add('hidden');
         if (dashAdminView) dashAdminView.classList.remove('hidden');
+        if (btnBukaKasirDash) btnBukaKasirDash.classList.add('hidden');
+        if (btnBukaKasirTrans) btnBukaKasirTrans.classList.add('hidden');
       } else {
+        // Untuk Kasir: Karyawan, Laporan, Pengaturan DIHILANGKAN agar ringkas & tidak membingungkan
         document.getElementById('userRoleDisplay').innerHTML = `
           <span class="w-1.5 h-1.5 rounded-full bg-[#2E7D5B] animate-pulse"></span> 
           KASIR AKTIF
         `;
-        // Kasir hanya memiliki hak: dashboard saat ini, kasir, transaksi, menu, member
+        if (navKasir) navKasir.classList.remove('hidden');
+        if (navDashboard) navDashboard.classList.remove('hidden');
+        if (navTransaksi) navTransaksi.classList.remove('hidden');
+        if (navMenu) navMenu.classList.remove('hidden');
+        if (navMember) navMember.classList.remove('hidden');
         if (navKaryawan) navKaryawan.classList.add('hidden');
         if (navLaporan) navLaporan.classList.add('hidden');
         if (navPengaturan) navPengaturan.classList.add('hidden');
+
         if (dashKasirView) dashKasirView.classList.remove('hidden');
         if (dashAdminView) dashAdminView.classList.add('hidden');
+        if (btnBukaKasirDash) btnBukaKasirDash.classList.remove('hidden');
+        if (btnBukaKasirTrans) btnBukaKasirTrans.classList.remove('hidden');
       }
       lucide.createIcons();
     }
@@ -1709,20 +1740,28 @@
     // 🧭 NAVIGASI HALAMAN SPA (WARM ESPRESSO & OAT CREAM THEME)
     // =========================================================================
     function navigasiKeHalaman(namaPage) {
-      if (currentUser && currentUser.role === 'kasir' && ['karyawan', 'laporan', 'pengaturan'].includes(namaPage)) {
-        alert('⚠️ Akses Terbatas: Halaman ' + namaPage.toUpperCase() + ' hanya dapat diakses oleh Administrator Resto.');
-        navigasiKeHalaman('kasir');
-        return;
+      const role = currentUser ? currentUser.role : 'kasir';
+      const allowedPages = (role === 'admin') ? ADMIN_PAGES : KASIR_PAGES;
+
+      // Jika mencoba membuka halaman di luar hak akses role, alihkan secara mulus tanpa alert mengganggu
+      if (!allowedPages.includes(namaPage)) {
+        namaPage = (role === 'admin') ? 'dashboard' : 'kasir';
       }
 
-      const pages = ['kasir', 'dashboard', 'transaksi', 'menu', 'member', 'karyawan', 'laporan', 'pengaturan'];
-      pages.forEach(p => {
+      const allPages = ['kasir', 'dashboard', 'transaksi', 'menu', 'member', 'karyawan', 'laporan', 'pengaturan'];
+      allPages.forEach(p => {
         const el = document.getElementById(`page-${p}`);
         if (el) el.classList.add('hidden');
 
         const btn = document.getElementById(`nav-${p}`);
         if (btn) {
-          btn.className = "w-full flex items-center gap-3.5 px-4 py-3 rounded-2xl text-[#B8ADA4] hover:text-white hover:bg-[#362B26]/60 transition-colors text-left cursor-pointer group";
+          // Hanya tampilkan tombol jika diizinkan untuk role ini, sisanya disembunyikan total
+          if (!allowedPages.includes(p)) {
+            btn.classList.add('hidden');
+          } else {
+            btn.classList.remove('hidden');
+            btn.className = "w-full flex items-center gap-3.5 px-4 py-3 rounded-2xl text-[#B8ADA4] hover:text-white hover:bg-[#362B26]/60 transition-colors text-left cursor-pointer group";
+          }
         }
       });
 
@@ -1731,34 +1770,35 @@
 
       const activeBtn = document.getElementById(`nav-${namaPage}`);
       if (activeBtn) {
+        activeBtn.classList.remove('hidden');
         activeBtn.className = "w-full flex items-center gap-3.5 px-4 py-3 rounded-2xl text-white font-bold bg-[#C86A32] shadow-lg shadow-[#C86A32]/30 transition-all text-left cursor-pointer group";
       }
 
       if (namaPage === 'dashboard') loadDashboardStats();
       else if (namaPage === 'transaksi') loadRiwayatTransaksi();
-      else if (namaPage === 'menu') { renderCrudMenuTable(); }
+      else if (namaPage === 'menu') renderCrudMenuTable();
       else if (namaPage === 'member') loadMembersList();
-      else if (namaPage === 'karyawan') loadKaryawanList();
-      else if (namaPage === 'laporan') loadLaporanPenjualan();
-      else if (namaPage === 'pengaturan') loadPengaturanTokoData();
-      else if (namaPage === 'kasir') { renderCart(); }
+      else if (namaPage === 'karyawan' && role === 'admin') loadKaryawanList();
+      else if (namaPage === 'laporan' && role === 'admin') loadLaporanPenjualan();
+      else if (namaPage === 'pengaturan' && role === 'admin') loadPengaturanTokoData();
+      else if (namaPage === 'kasir' && role === 'kasir') renderCart();
 
       lucide.createIcons();
     }
 
     // Aliases navigasi agar fungsi pemanggil tombol lama tetap berjalan mulus
     function bukaDashboardModal() { navigasiKeHalaman('dashboard'); }
-    function tutupDashboardModal() { navigasiKeHalaman('kasir'); }
+    function tutupDashboardModal() { navigasiKeHalaman(currentUser && currentUser.role === 'admin' ? 'dashboard' : 'kasir'); }
     function bukaRiwayatTransaksi() { navigasiKeHalaman('transaksi'); }
-    function tutupRiwayatTransaksi() { navigasiKeHalaman('kasir'); }
+    function tutupRiwayatTransaksi() { navigasiKeHalaman(currentUser && currentUser.role === 'admin' ? 'dashboard' : 'kasir'); }
     function bukaManajemenMenu() { navigasiKeHalaman('menu'); }
-    function tutupManajemenMenu() { navigasiKeHalaman('kasir'); }
+    function tutupManajemenMenu() { navigasiKeHalaman(currentUser && currentUser.role === 'admin' ? 'dashboard' : 'kasir'); }
     function bukaKelolaMember() { navigasiKeHalaman('member'); }
-    function tutupKelolaMember() { navigasiKeHalaman('kasir'); }
+    function tutupKelolaMember() { navigasiKeHalaman(currentUser && currentUser.role === 'admin' ? 'dashboard' : 'kasir'); }
     function bukaLaporanPenjualan() { navigasiKeHalaman('laporan'); }
-    function tutupLaporanPenjualan() { navigasiKeHalaman('kasir'); }
+    function tutupLaporanPenjualan() { navigasiKeHalaman(currentUser && currentUser.role === 'admin' ? 'dashboard' : 'kasir'); }
     function bukaPengaturanModal() { navigasiKeHalaman('pengaturan'); }
-    function tutupPengaturanModal() { navigasiKeHalaman('kasir'); }
+    function tutupPengaturanModal() { navigasiKeHalaman(currentUser && currentUser.role === 'admin' ? 'dashboard' : 'kasir'); }
 
     // 2. Ambil Menu dari MySQL
     async function loadMenuFromAPI() {

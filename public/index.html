@@ -1534,6 +1534,24 @@
 
   <!-- JAVASCRIPT: LOGIKA PENUH KASIR, CRUD, DASHBOARD, LAPORAN, & LOGIN -->
   <script>
+    /**
+     * @file index.html (Client-Side Application Core)
+     * @description Logika antarmuka Single Page Application (SPA) MoonCafe POS.
+     * Mengelola status login berbasis peran (Kasir & Admin), katalog menu dinamis,
+     * keranjang belanja, kalkulasi finansial real-time, cetak struk 58mm, visualisasi
+     * grafik Chart.js, serta CRUD Menu, Member, dan Karyawan.
+     * 
+     * Standar Penilaian UKK BNSP:
+     * - J.620100.009.01 : Menggunakan Spesifikasi Program
+     * - J.620100.016.01 : Menulis Kode Sesuai Guidelines dan Best Practice
+     * - J.620100.017.02 : Mengimplementasikan Pemrograman Terstruktur
+     * - J.620100.023.02 : Membuat Dokumen Kode Program (Docblock / JSDoc)
+     * - J.620100.025.02 : Melakukan Penanganan Error (Error Handling & Validation)
+     * 
+     * @author Saladin (Peserta UKK 2026 - SMK Telkom Purwokerto)
+     * @version 2.4.0
+     */
+
     let databaseMenu = [];
     let cart = [];
     let activeCategory = 'Semua';
@@ -1541,11 +1559,20 @@
     let selectedMember = null;
     let currentUser = null;
 
+    /**
+     * Memformat angka nominal integer/float menjadi format mata uang Rupiah Indonesia.
+     * @param {number|string} val - Angka nominal.
+     * @returns {string} String Rupiah terformat (contoh: "Rp25.000").
+     */
     function formatRp(val) {
       return "Rp" + Math.round(Number(val) || 0).toLocaleString('id-ID');
     }
 
-    // 1. Cek Login Session & Tampilan Layar Penuh
+    /**
+     * Memeriksa session login pengguna yang tersimpan di localStorage / sessionStorage saat inisialisasi aplikasi.
+     * Jika sesi aktif ditemukan, menampilkan ruang kerja sesuai peran. Jika tidak, menampilkan layar penuh autentikasi.
+     * @returns {void}
+     */
     function cekSessionLogin() {
       const saved = localStorage.getItem('mooncafe_user') || sessionStorage.getItem('mooncafe_user');
       const pageLogin = document.getElementById('pageLogin');
@@ -1567,7 +1594,10 @@
       }
     }
 
-    // Toggle Sembunyikan / Tampilkan Password
+    /**
+     * Mengubah mode visibilitas kata sandi antara tipe text dan password secara interaktif.
+     * @returns {void}
+     */
     function toggleLihatPassword() {
       const passInput = document.getElementById('loginPassword');
       const icon = document.getElementById('iconTogglePassword');
@@ -1583,6 +1613,11 @@
       lucide.createIcons();
     }
 
+    /**
+     * Memvalidasi form input login petugas dan mengirimkan permintaan POST ke endpoint /api/auth/login.
+     * @param {Event} [event] - Event submit form otentikasi.
+     * @returns {Promise<void>}
+     */
     async function prosesLoginKasir(event) {
       if (event) event.preventDefault();
       const u = document.getElementById('loginUsername').value.trim();
@@ -1654,7 +1689,11 @@
       }
     }
 
-    // Daftar halaman yang sah untuk tiap peran (Role-Based Access Control)
+    /**
+     * Memperbarui informasi profil petugas aktif dan menyesuaikan hak akses menu sidebar serta view dashboard.
+     * Memastikan pemisahan tegas antara fitur operasional Kasir dan fitur manajerial Administrator.
+     * @returns {void}
+     */
     const KASIR_PAGES = ['kasir', 'dashboard', 'transaksi', 'menu', 'member'];
     const ADMIN_PAGES = ['dashboard', 'transaksi', 'menu', 'member', 'karyawan', 'laporan', 'pengaturan'];
 
@@ -1718,6 +1757,10 @@
       lucide.createIcons();
     }
 
+    /**
+     * Mengeluarkan akun kasir/admin saat ini, membersihkan local storage, dan menampilkan kembali form login layar penuh.
+     * @returns {void}
+     */
     function logoutKasir() {
       if (confirm('Apakah Anda ingin keluar dari sistem MoonCafe POS?')) {
         localStorage.removeItem('mooncafe_user');
@@ -1739,6 +1782,12 @@
     // =========================================================================
     // 🧭 NAVIGASI HALAMAN SPA (WARM ESPRESSO & OAT CREAM THEME)
     // =========================================================================
+    /**
+     * Berpindah antar modul halaman SPA (Single Page Application) tanpa reload browser.
+     * Mengunci akses terhadap halaman yang tidak diizinkan bagi peran saat ini secara mulus.
+     * @param {string} namaPage - Nama halaman target ('kasir', 'dashboard', 'transaksi', 'menu', 'member', 'karyawan', 'laporan', 'pengaturan').
+     * @returns {void}
+     */
     function navigasiKeHalaman(namaPage) {
       const role = currentUser ? currentUser.role : 'kasir';
       const allowedPages = (role === 'admin') ? ADMIN_PAGES : KASIR_PAGES;
@@ -1800,7 +1849,13 @@
     function bukaPengaturanModal() { navigasiKeHalaman('pengaturan'); }
     function tutupPengaturanModal() { navigasiKeHalaman(currentUser && currentUser.role === 'admin' ? 'dashboard' : 'kasir'); }
 
-    // 2. Ambil Menu dari MySQL
+    // =========================================================================
+    // 🍔 MANAJEMEN MENU & KATALOG PRODUK
+    // =========================================================================
+    /**
+     * Mengambil data produk menu dari endpoint /api/menu dan merender tampilan grid POS serta tabel CRUD.
+     * @returns {Promise<void>}
+     */
     async function loadMenuFromAPI() {
       try {
         const res = await fetch('/api/menu');
@@ -1953,6 +2008,13 @@
       renderCart();
     }
 
+    /**
+     * Menambah atau mengurangi kuantitas item pesanan di keranjang belanja.
+     * Memastikan kuantitas tidak melebihi sisa stok di database, dan menghapus item jika qty menjadi 0.
+     * @param {number} id - ID produk.
+     * @param {number} delta - Selisih kuantitas (+1 untuk tambah, -1 untuk kurangi).
+     * @returns {void}
+     */
     function ubahQty(id, delta) {
       const item = cart.find(c => c.id === id);
       if (!item) return;
@@ -1975,16 +2037,39 @@
       renderCart();
     }
 
+    /**
+     * Menghapus seluruh porsi suatu item produk dari keranjang belanja.
+     * @param {number} id - ID produk yang akan dihapus.
+     * @returns {void}
+     */
     function hapusItem(id) {
       cart = cart.filter(c => c.id !== id);
       renderCart();
     }
 
+    /**
+     * Mengosongkan seluruh isi keranjang belanja kasir.
+     * @returns {void}
+     */
     function kosongkanKeranjang() {
       cart = [];
       renderCart();
     }
 
+    /**
+     * Menghitung kalkulasi finansial keranjang belanja secara real-time.
+     * Mencakup subtotal, diskon bertingkat (10%-15%), diskon member (5%), DPP, Pajak PB1 10%, dan Total Bayar.
+     * @returns {{
+     *   subtotal: number,
+     *   diskonTierPersen: number,
+     *   diskonMemberPersen: number,
+     *   totalDiskonPersen: number,
+     *   totalDiskonNominal: number,
+     *   dpp: number,
+     *   pajak10: number,
+     *   totalBayar: number
+     * }}
+     */
     function hitungTotal() {
       const subtotal = cart.reduce((sum, item) => sum + (item.harga * item.qty), 0);
       let diskonTierPersen = 0;
@@ -2002,6 +2087,10 @@
       return { subtotal, diskonTierPersen, diskonMemberPersen, totalDiskonPersen, totalDiskonNominal, dpp, pajak10, totalBayar };
     }
 
+    /**
+     * Memperbarui antarmuka panel pesanan kasir, rincian item, dan badge ringkasan kalkulasi.
+     * @returns {void}
+     */
     function renderCart() {
       const list = document.getElementById('cartList');
       list.innerHTML = '';
@@ -2125,6 +2214,11 @@
       });
     }
 
+    /**
+     * Memilih tipe pesanan (Dine-In / Makan di Tempat vs Take-Away / Bawa Pulang).
+     * @param {'dine_in'|'take_away'} tipe - Opsi tipe pesanan.
+     * @returns {void}
+     */
     function pilihTipePesanan(tipe) {
       selectedOrderType = tipe;
       const btnDine = document.getElementById('modalBtnDineIn');
@@ -2139,6 +2233,11 @@
       }
     }
 
+    /**
+     * Mengatur status apakah pelanggan memiliki member loyalitas atau pelanggan reguler umum.
+     * @param {boolean} isPunya - True jika pelanggan adalah member, false jika bukan.
+     * @returns {void}
+     */
     function toggleMember(isPunya) {
       const btnNo = document.getElementById('btnMemberNo');
       const btnYes = document.getElementById('btnMemberYes');
@@ -2161,6 +2260,10 @@
       }
     }
 
+    /**
+     * Melakukan pencarian data member secara realtime melalui API berdasarkan nama, kode member, atau nomor telepon.
+     * @returns {Promise<void>}
+     */
     async function cariMemberRealtime() {
       const keyword = document.getElementById('memberInput').value.trim();
       const resultsBox = document.getElementById('memberSearchResults');
@@ -2202,6 +2305,10 @@
       }
     }
 
+    /**
+     * Menghitung nilai uang kembalian pelanggan berdasarkan total belanja dan uang yang diserahkan.
+     * @returns {void}
+     */
     function hitungUangKembalian() {
       const calc = hitungTotal();
       const bayar = parseFloat(document.getElementById('uangDiterimaInput').value) || 0;
@@ -2220,6 +2327,11 @@
       }
     }
 
+    /**
+     * Memvalidasi pembayaran dan mengirimkan data checkout transaksi ke endpoint backend POST /api/transaksi.
+     * Menampilkan struk thermal cetak setelah transaksi berhasil dikomit di MySQL.
+     * @returns {Promise<void>}
+     */
     async function simpanTransaksiKeDatabase() {
       const calc = hitungTotal();
       const bayar = parseFloat(document.getElementById('uangDiterimaInput').value) || 0;
@@ -2519,7 +2631,11 @@
       }
     }
 
-    // Render Grafik Tren Omzet di Dashboard Admin
+    /**
+     * Merender grafik kurva garis tren omzet 7 hari terakhir pada Dashboard Eksekutif Admin menggunakan Chart.js.
+     * @param {Array<{tanggal: string, omzet: number, total_transaksi: number}>} trendData - Data histori harian.
+     * @returns {void}
+     */
     function renderAdminSalesChart(trendData) {
       const canvas = document.getElementById('adminSalesTrendChart');
       if (!canvas) return;
@@ -2584,6 +2700,11 @@
     // =========================================================================
     // 🌟 LAPORAN PENJUALAN DENGAN VISUALISASI GRAFIK CHART.JS 🌟
     // =========================================================================
+    /**
+     * Mengambil data rekapitulasi audit laporan penjualan dari endpoint /api/laporan.
+     * Menghitung total omzet kotor, diskon, setoran pajak PB1 10%, dan memanggil render chart.
+     * @returns {Promise<void>}
+     */
     async function loadLaporanPenjualan() {
       const tbody = document.getElementById('laporanTableBody');
       tbody.innerHTML = `<tr><td colspan="8" class="text-center py-8 text-[#7A6F66] font-bold">Memuat rekap laporan dari MySQL...</td></tr>`;
@@ -2627,7 +2748,12 @@
       }
     }
 
-    // Render Grafik di Halaman Laporan Penjualan
+    /**
+     * Merender grafik visualisasi batang & garis gabungan (Dual-Axis) pada halaman Laporan Keuangan.
+     * Menggambarkan perbandingan antara omzet bersih dan setoran pajak restoran PB1 (10%) harian.
+     * @param {Array<{label_tgl: string, omzet_bersih: number, pajak: number, jumlah_transaksi: number}>} chartData
+     * @returns {void}
+     */
     function renderLaporanChart(chartData) {
       const canvas = document.getElementById('laporanPenjualanChart');
       if (!canvas) return;
@@ -2712,6 +2838,10 @@
     // =========================================================================
     // 👥 MANAJEMEN KARYAWAN & HAK AKSES (CRUD PETUGAS)
     // =========================================================================
+    /**
+     * Mengambil daftar seluruh data pegawai (Admin & Kasir) dari endpoint GET /api/petugas.
+     * @returns {Promise<void>}
+     */
     async function loadKaryawanList() {
       const tbody = document.getElementById('karyawanTableBody');
       if (tbody) tbody.innerHTML = `<tr><td colspan="6" class="text-center py-8 text-[#7A6F66] font-bold">Memuat data pegawai dari MySQL...</td></tr>`;
@@ -2728,6 +2858,11 @@
       }
     }
 
+    /**
+     * Merender tabel daftar karyawan dengan fitur pencarian instan dan tombol aksi Edit & Hapus.
+     * Menerapkan badge proteksi Superadmin Utama (#1) yang terkunci.
+     * @returns {void}
+     */
     function renderKaryawanTable() {
       const tbody = document.getElementById('karyawanTableBody');
       if (!tbody) return;
@@ -2823,6 +2958,11 @@
       document.getElementById('modalFormKaryawan').classList.add('hidden');
     }
 
+    /**
+     * Memproses penyimpanan akun pegawai (Insert untuk akun baru, Update untuk modifikasi akun lama).
+     * @param {Event} event - Event submit form karyawan.
+     * @returns {Promise<void>}
+     */
     async function simpanKaryawan(event) {
       event.preventDefault();
       const id = document.getElementById('formKaryawanId').value;
@@ -2865,6 +3005,12 @@
       }
     }
 
+    /**
+     * Menghapus akun pegawai berdasarkan ID (dengan konfirmasi dialog dan proteksi superadmin).
+     * @param {number} id - ID petugas yang akan dihapus.
+     * @param {string} nama - Nama petugas.
+     * @returns {Promise<void>}
+     */
     async function hapusKaryawan(id, nama) {
       if (!confirm(`Hapus akun karyawan "${nama}"? Akun ini tidak akan dapat login kembali.`)) return;
 
@@ -3020,6 +3166,10 @@
       lucide.createIcons();
     }
 
+    /**
+     * Membuka form modal penambahan menu baru dan menginisialisasi nilai input default.
+     * @returns {void}
+     */
     function bukaFormTambahMenu() {
       document.getElementById('formMenuTitle').innerText = "Tambah Menu Baru";
       document.getElementById('formMenuId').value = "";
@@ -3038,6 +3188,11 @@
       lucide.createIcons();
     }
 
+    /**
+     * Membuka form modal edit menu dan memuat data produk terpilih ke dalam field input form.
+     * @param {number} id - ID produk yang akan dimodifikasi.
+     * @returns {void}
+     */
     function bukaFormEditMenu(id) {
       const item = databaseMenu.find(m => m.id_produk === id);
       if (!item) return;
@@ -3070,10 +3225,19 @@
       lucide.createIcons();
     }
 
+    /**
+     * Menutup jendela dialog form modal menu produk.
+     * @returns {void}
+     */
     function tutupFormMenu() {
       document.getElementById('modalFormMenu').classList.add('hidden');
     }
 
+    /**
+     * Mengirimkan data form menu (POST untuk create, PUT untuk update) ke server Express.
+     * @param {Event} event - Event submit form menu.
+     * @returns {Promise<void>}
+     */
     async function simpanMenu(event) {
       event.preventDefault();
       const id = document.getElementById('formMenuId').value;
@@ -3115,6 +3279,12 @@
       }
     }
 
+    /**
+     * Menghapus menu dari database setelah konfirmasi (menolak jika menu sudah memiliki relasi di riwayat transaksi).
+     * @param {number} id - ID produk.
+     * @param {string} nama - Nama produk.
+     * @returns {Promise<void>}
+     */
     async function hapusMenu(id, nama) {
       if (!confirm(`Hapus menu "${nama}" dari database MoonCafe?`)) return;
 
@@ -3137,6 +3307,10 @@
     // =========================================================================
     let databaseMembers = [];
 
+    /**
+     * Mengambil seluruh data member pelanggan dari endpoint /api/members.
+     * @returns {Promise<void>}
+     */
     async function loadMembersList() {
       try {
         const res = await fetch('/api/members');
@@ -3257,6 +3431,10 @@
     // =========================================================================
     // 🌟 PENGATURAN TOKO & STRUK KASIR 🌟
     // =========================================================================
+    /**
+     * Mengambil data profil restoran dan footer nota struk kasir dari endpoint /api/pengaturan-struk.
+     * @returns {Promise<void>}
+     */
     async function loadPengaturanTokoData() {
       try {
         const res = await fetch('/api/pengaturan-struk');
@@ -3272,6 +3450,11 @@
       }
     }
 
+    /**
+     * Memperbarui informasi identitas restoran dan footer struk thermal melalui PUT /api/pengaturan-struk.
+     * @param {Event} event - Event submit form pengaturan toko.
+     * @returns {Promise<void>}
+     */
     async function simpanPengaturanToko(event) {
       event.preventDefault();
       const nama = document.getElementById('settingNamaToko').value.trim();
@@ -3305,6 +3488,10 @@
       }
     }
 
+    /**
+     * Beralih antara mode tampilan layar penuh (fullscreen) dan jendela normal browser untuk kenyamanan kasir.
+     * @returns {void}
+     */
     function toggleFullscreen() {
       if (!document.fullscreenElement) {
         document.documentElement.requestFullscreen();

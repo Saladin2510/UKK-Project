@@ -1,7 +1,18 @@
 /**
  * @file app.js
- * @description Entry point server Express.js untuk PoS Kasir MoonCafe terintegrasi REST API & MySQL.
- * @author Saladin (Peserta UKK 2026)
+ * @description Entry point dan konfigurasi server backend Express.js untuk PoS Kasir MoonCafe.
+ * Terintegrasi dengan koneksi basis data MySQL lokal (XAMPP), router REST API terpadu,
+ * dan penyedia aset statis antarmuka Single Page Application (SPA).
+ * 
+ * Standar Penilaian UKK BNSP (Skema Pemrogram Junior):
+ * - J.620100.009.01 : Menggunakan Spesifikasi Program.
+ * - J.620100.016.01 : Menulis Kode Sesuai Guidelines dan Best Practice.
+ * - J.620100.017.02 : Mengimplementasikan Pemrograman Terstruktur.
+ * - J.620100.023.02 : Membuat Dokumen Kode Program (JSDoc / Docblock).
+ * - J.620100.025.02 : Melakukan Penanganan Error (Error Handling & Debugging).
+ * 
+ * @author Saladin (Peserta UKK 2026 - SMK Telkom Purwokerto)
+ * @version 2.4.0
  */
 
 const express = require('express');
@@ -12,22 +23,29 @@ const apiRoutes = require('./routes/api');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Middleware parsing JSON dan form URL-encoded
+// Middleware parsing payload JSON dan URL-encoded request body
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Menyajikan file statis antarmuka POS kasir (HTML, CSS, JS, Gambar)
+// Menyajikan file statis antarmuka POS kasir (HTML, Tailwind CSS, Lucide Icons, Chart.js, Gambar)
 app.use(express.static(path.join(__dirname, '../public')));
 
-// Integrasi Rute REST API Terpusat
+// Integrasi modul rute REST API terpusat (/api)
 app.use('/api', apiRoutes);
 
-// Route utama: Mengarahkan langsung ke antarmuka Kasir MoonCafe
+/**
+ * Route Root: Menyajikan file antarmuka utama Single Page Application (SPA) MoonCafe POS.
+ * @route GET /
+ */
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, '../public/index.html'));
 });
 
-// Endpoint status kesehatan server
+/**
+ * Route Health Check: Memantau status operasional server dan kesehatan koneksi MySQL.
+ * @route GET /api/status
+ * @returns {Object} JSON status ketersediaan server dan database.
+ */
 app.get('/api/status', async (req, res) => {
   const dbConnected = await testKoneksi();
   res.json({
@@ -37,7 +55,7 @@ app.get('/api/status', async (req, res) => {
   });
 });
 
-// Jalankan server
+// Jalankan listener server pada port yang dikonfigurasikan
 app.listen(PORT, async () => {
   console.log(`=================================================`);
   console.log(`🚀 Server PoS Kasir MoonCafe Aktif!`);

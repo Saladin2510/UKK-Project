@@ -10,7 +10,8 @@
  * - J.620100.023.02 : Membuat dokumen kode program (JSDoc / Docblock).
  * - J.620100.033.02 : Melaksanakan pengujian unit program (Jest).
  * 
- * @author Saladin (Peserta UKK 2026)
+ * @author Saladin (Peserta UKK 2026 - SMK Telkom Purwokerto)
+ * @version 2.4.0
  */
 
 /**

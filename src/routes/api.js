@@ -316,6 +316,13 @@ router.get('/laporan', async (req, res) => {
 // =====================================================================
 // 4. MANAJEMEN MENU PRODUK (CRUD LENGKAP)
 // =====================================================================
+/**
+ * @route GET /api/menu
+ * @summary Mengambil seluruh katalog produk menu makanan dan minuman.
+ * @description Menggabungkan data dari tabel `produk` dan `kategori` untuk menampilkan harga, stok, dan deskripsi resep.
+ * @access Kasir & Admin
+ * @returns {Object} JSON daftar produk aktif.
+ */
 router.get('/menu', async (req, res) => {
   try {
     const query = `
@@ -339,6 +346,12 @@ router.get('/menu', async (req, res) => {
   }
 });
 
+/**
+ * @route GET /api/kategori
+ * @summary Mengambil seluruh daftar kategori menu (Makanan, Minuman, Snack, dsb).
+ * @access Kasir & Admin
+ * @returns {Object} JSON array kategori.
+ */
 router.get('/kategori', async (req, res) => {
   try {
     const [rows] = await pool.query('SELECT * FROM kategori ORDER BY id_kategori ASC');
@@ -348,6 +361,14 @@ router.get('/kategori', async (req, res) => {
   }
 });
 
+/**
+ * @route POST /api/menu
+ * @summary Menambahkan produk menu baru ke basis data MySQL.
+ * @description Menyimpan data nama, kategori, harga satuan, stok awal, URL gambar, serta komposisi bahan.
+ * @access Admin
+ * @param {Object} req.body - Data menu baru (id_kategori, nama_produk, deskripsi, harga, stok, gambar).
+ * @returns {Object} JSON status penyimpanan dan ID produk baru.
+ */
 router.post('/menu', async (req, res) => {
   try {
     const { id_kategori, nama_produk, deskripsi, harga, stok, gambar } = req.body;
@@ -377,6 +398,14 @@ router.post('/menu', async (req, res) => {
   }
 });
 
+/**
+ * @route PUT /api/menu/:id
+ * @summary Memperbarui data menu produk berdasarkan ID.
+ * @access Admin
+ * @param {number} req.params.id - ID produk yang akan diupdate.
+ * @param {Object} req.body - Data pembaruan menu.
+ * @returns {Object} JSON status pembaruan.
+ */
 router.put('/menu/:id', async (req, res) => {
   try {
     const id = req.params.id;
@@ -409,6 +438,13 @@ router.put('/menu/:id', async (req, res) => {
   }
 });
 
+/**
+ * @route DELETE /api/menu/:id
+ * @summary Menghapus menu dari database jika belum memiliki riwayat transaksi (integritas relasi).
+ * @access Admin
+ * @param {number} req.params.id - ID produk yang akan dihapus.
+ * @returns {Object} JSON status penghapusan.
+ */
 router.delete('/menu/:id', async (req, res) => {
   try {
     const id = req.params.id;
@@ -426,11 +462,15 @@ router.delete('/menu/:id', async (req, res) => {
   }
 });
 
-
 // =====================================================================
 // 5. DATA MEMBER & PENCARIAN MEMBER
 // =====================================================================
-// Ambil semua daftar member
+/**
+ * @route GET /api/members
+ * @summary Mengambil seluruh daftar member loyalitas terdaftar.
+ * @access Kasir & Admin
+ * @returns {Object} JSON array data member beserta poin dan diskonnya.
+ */
 router.get('/members', async (req, res) => {
   try {
     const [rows] = await pool.query(`SELECT * FROM members ORDER BY id_member DESC`);
@@ -440,7 +480,13 @@ router.get('/members', async (req, res) => {
   }
 });
 
-// Tambah member baru
+/**
+ * @route POST /api/members
+ * @summary Mendaftarkan member baru dengan hak diskon loyalty 5%.
+ * @access Kasir & Admin
+ * @param {Object} req.body - Data member (nama_member, no_telp, kode_member opsional).
+ * @returns {Object} JSON konfirmasi member baru.
+ */
 router.post('/members', async (req, res) => {
   try {
     const { nama_member, no_telp } = req.body;
@@ -468,7 +514,13 @@ router.post('/members', async (req, res) => {
   }
 });
 
-// Hapus member
+/**
+ * @route DELETE /api/members/:id
+ * @summary Menghapus data member pelanggan berdasarkan ID.
+ * @access Admin
+ * @param {number} req.params.id - ID member yang akan dihapus.
+ * @returns {Object} JSON status penghapusan.
+ */
 router.delete('/members/:id', async (req, res) => {
   try {
     const { id } = req.params;
@@ -479,6 +531,13 @@ router.delete('/members/:id', async (req, res) => {
   }
 });
 
+/**
+ * @route GET /api/members/search
+ * @summary Mencari data member secara instan berdasarkan nama, kode member, atau nomor telepon.
+ * @access Kasir & Admin
+ * @param {string} req.query.q - Kata kunci pencarian member.
+ * @returns {Object} JSON daftar 10 member teratas yang cocok.
+ */
 router.get('/members/search', async (req, res) => {
   try {
     const keyword = req.query.q || '';
@@ -497,6 +556,18 @@ router.get('/members/search', async (req, res) => {
   }
 });
 
+// =====================================================================
+// 6. PEMROSESAN TRANSAKSI PENJUALAN & RIWAYAT NOTA STRUK
+// =====================================================================
+/**
+ * @route POST /api/transaksi
+ * @summary Memproses checkout pesanan kasir secara ACID Transaction di MySQL.
+ * @description Menghitung subtotal, diskon bertingkat & member, pajak PB1 10%, menyimpan header transaksi,
+ * menyimpan detail item belanja, memotong stok produk secara otomatis, dan mengakumulasi poin member.
+ * @access Kasir
+ * @param {Object} req.body - Payload transaksi (id_petugas, id_member, tipe_pesanan, items, bayar).
+ * @returns {Object} JSON detail nota transaksi dan konfigurasi cetak struk.
+ */
 router.post('/transaksi', async (req, res) => {
   const { id_petugas, id_member, tipe_pesanan, items, bayar } = req.body;
   if (!Array.isArray(items) || items.length === 0) {
@@ -607,6 +678,12 @@ router.post('/transaksi', async (req, res) => {
   }
 });
 
+/**
+ * @route GET /api/transaksi
+ * @summary Mengambil daftar seluruh riwayat transaksi penjualan (maksimal 50 terkini).
+ * @access Kasir & Admin
+ * @returns {Object} JSON array riwayat transaksi.
+ */
 router.get('/transaksi', async (req, res) => {
   try {
     const query = `
@@ -634,6 +711,13 @@ router.get('/transaksi', async (req, res) => {
   }
 });
 
+/**
+ * @route GET /api/transaksi/:id
+ * @summary Mengambil rincian detail transaksi untuk cetak ulang nota struk 58mm.
+ * @access Kasir & Admin
+ * @param {number} req.params.id - ID transaksi yang diminta.
+ * @returns {Object} JSON objek header, daftar item detail belanja, dan footer struk.
+ */
 router.get('/transaksi/:id', async (req, res) => {
   try {
     const id = req.params.id;
@@ -660,6 +744,12 @@ router.get('/transaksi/:id', async (req, res) => {
   }
 });
 
+/**
+ * @route GET /api/pengaturan-struk
+ * @summary Mengambil data konfigurasi nama resto, alamat, dan pesan footer nota struk.
+ * @access Kasir & Admin
+ * @returns {Object} JSON konfigurasi struk aktif.
+ */
 router.get('/pengaturan-struk', async (req, res) => {
   try {
     const [rows] = await pool.query(`SELECT * FROM pengaturan_struk LIMIT 1`);
@@ -669,7 +759,13 @@ router.get('/pengaturan-struk', async (req, res) => {
   }
 });
 
-// Update Pengaturan Struk & Toko
+/**
+ * @route PUT /api/pengaturan-struk
+ * @summary Memperbarui data konfigurasi toko dan footer struk kasir.
+ * @access Admin
+ * @param {Object} req.body - Data konfigurasi (nama_resto, alamat, no_telepon, pesan_footer).
+ * @returns {Object} JSON status penyimpanan.
+ */
 router.put('/pengaturan-struk', async (req, res) => {
   try {
     const { nama_resto, alamat, no_telepon, pesan_footer } = req.body;

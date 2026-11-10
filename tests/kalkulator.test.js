@@ -2,6 +2,14 @@
  * @file kalkulator.test.js
  * @description Unit Testing Otomatis menggunakan Jest untuk modul kalkulator MoonCafe.
  * Target Capaian MUK: 100% PASSED (Unit Kompetensi BNSP J.620100.033.02).
+ * 
+ * Standar Penilaian UKK BNSP (Skema Pemrogram Junior):
+ * - J.620100.016.01 : Menulis Kode Sesuai Guidelines dan Best Practices.
+ * - J.620100.023.02 : Membuat Dokumen Kode Program (JSDoc / Docblock).
+ * - J.620100.033.02 : Melaksanakan Pengujian Unit Program (Jest Test Suite).
+ * 
+ * @author Saladin (Peserta UKK 2026 - SMK Telkom Purwokerto)
+ * @version 2.4.0
  */
 
 const {

@@ -1203,44 +1203,152 @@
   </div>
 
   <!-- ========================================================================= -->
-  <!-- 🌟 3. MODAL LOGIN KASIR / ADMIN (OTENTIKASI USER) 🌟                      -->
+  <!-- 🌟 HALAMAN LOGIN RESMI (FULL PAGE AUTHENTICATION SCREEN) 🌟               -->
   <!-- ========================================================================= -->
-  <div id="modalLogin" class="fixed inset-0 bg-[#231B18]/80 backdrop-blur-md z-[70] flex items-center justify-center p-6 hidden">
-    <div class="bg-white w-full max-w-sm rounded-3xl shadow-2xl border border-[#E7DFD3] p-7 space-y-5 animate-in zoom-in-95 duration-200">
-      <div class="text-center space-y-1">
-        <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-[#C86A32] to-[#A2481A] flex items-center justify-center text-white mx-auto shadow-lg shadow-[#C86A32]/25">
-          <i data-lucide="moon" class="w-6 h-6 fill-white"></i>
-        </div>
-        <h4 class="font-black text-lg text-[#1E1815] tracking-tight pt-2">Login Petugas MoonCafe</h4>
-        <p class="text-xs text-[#7A6F66]">Silakan masuk sebagai Kasir atau Admin</p>
-      </div>
+  <div id="pageLogin" class="fixed inset-0 z-[100] bg-[#F7F3EC] flex items-center justify-center p-4 sm:p-6 md:p-10 overflow-y-auto">
+    <div class="w-full max-w-4xl bg-white rounded-3xl border border-[#E7DFD3] shadow-2xl overflow-hidden grid grid-cols-1 lg:grid-cols-12 min-h-[560px]">
+      
+      <!-- Kolom Kiri: Branding Eksklusif Hospitality (Deep Espresso) -->
+      <div class="lg:col-span-5 bg-[#231B18] text-white p-8 sm:p-10 flex flex-col justify-between relative overflow-hidden">
+        <!-- Subtle Ambient Background Glow -->
+        <div class="absolute -top-24 -left-24 w-64 h-64 bg-[#C86A32]/20 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="absolute -bottom-24 -right-24 w-64 h-64 bg-[#C86A32]/10 rounded-full blur-3xl pointer-events-none"></div>
 
-      <form onsubmit="prosesLoginKasir(event)" class="space-y-4 text-xs font-bold text-[#1E1815]">
-        <div class="space-y-1.5">
-          <label>Username</label>
-          <input type="text" id="loginUsername" required placeholder="kasir atau admin" class="w-full px-3.5 py-2.5 rounded-xl border border-[#E7DFD3] bg-[#FAF8F5] font-semibold text-[#1E1815] focus:outline-none focus:ring-2 focus:ring-[#C86A32]/20 focus:border-[#C86A32]">
-        </div>
-        <div class="space-y-1.5">
-          <label>Password</label>
-          <input type="password" id="loginPassword" required placeholder="kasir123 atau admin123" class="w-full px-3.5 py-2.5 rounded-xl border border-[#E7DFD3] bg-[#FAF8F5] font-semibold text-[#1E1815] focus:outline-none focus:ring-2 focus:ring-[#C86A32]/20 focus:border-[#C86A32]">
-        </div>
+        <div class="relative z-10 space-y-6">
+          <!-- Logo & Brand Header -->
+          <div class="flex items-center gap-3">
+            <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-[#C86A32] to-[#A2481A] flex items-center justify-center text-white shadow-lg shadow-[#C86A32]/30 flex-shrink-0">
+              <i data-lucide="moon" class="w-6 h-6 fill-white"></i>
+            </div>
+            <div>
+              <h1 class="text-2xl font-black tracking-tight text-white">MoonCafe</h1>
+              <p class="text-[11px] text-[#C86A32] font-extrabold uppercase tracking-widest">Cafe & Resto</p>
+            </div>
+          </div>
 
-        <div class="p-3 rounded-xl bg-[#FAF8F5] border border-[#E7DFD3] text-[10px] space-y-1.5 text-[#7A6F66]">
-          <p class="font-bold text-[#1E1815]">Akun Pengujian Asesor UKK:</p>
-          <div class="grid grid-cols-2 gap-2 pt-0.5">
-            <button type="button" onclick="isiLoginCepat('kasir', 'kasir123')" class="py-1.5 px-2 rounded-lg bg-white border border-[#E7DFD3] hover:border-[#2E7D5B] text-[#1E1815] font-bold text-[10px] flex items-center justify-center gap-1 transition-all cursor-pointer">
-              <span class="w-1.5 h-1.5 rounded-full bg-[#2E7D5B]"></span> Login Kasir
-            </button>
-            <button type="button" onclick="isiLoginCepat('admin', 'admin123')" class="py-1.5 px-2 rounded-lg bg-white border border-[#E7DFD3] hover:border-[#C86A32] text-[#1E1815] font-bold text-[10px] flex items-center justify-center gap-1 transition-all cursor-pointer">
-              <span class="w-1.5 h-1.5 rounded-full bg-[#C86A32]"></span> Login Admin
-            </button>
+          <div class="space-y-2 pt-2">
+            <h2 class="text-xl font-extrabold text-white leading-snug">Point of Sale & Hospitality Management</h2>
+            <p class="text-xs text-[#B8ADA4] leading-relaxed">
+              Sistem kasir dan manajemen operasional terpadu untuk pelayanan pemesanan cepat, akurat, dan terpercaya.
+            </p>
+          </div>
+
+          <!-- Feature Highlights -->
+          <div class="space-y-3 pt-4 border-t border-[#362B26]">
+            <div class="flex items-center gap-3 text-xs text-[#EFE9DF]">
+              <div class="w-7 h-7 rounded-lg bg-[#362B26] flex items-center justify-center text-[#C86A32] flex-shrink-0">
+                <i data-lucide="zap" class="w-4 h-4"></i>
+              </div>
+              <span class="font-medium">Transaksi Kasir Cepat & Cetak Struk</span>
+            </div>
+            <div class="flex items-center gap-3 text-xs text-[#EFE9DF]">
+              <div class="w-7 h-7 rounded-lg bg-[#362B26] flex items-center justify-center text-[#C86A32] flex-shrink-0">
+                <i data-lucide="layers" class="w-4 h-4"></i>
+              </div>
+              <span class="font-medium">Manajemen Menu, Stok & Komposisi</span>
+            </div>
+            <div class="flex items-center gap-3 text-xs text-[#EFE9DF]">
+              <div class="w-7 h-7 rounded-lg bg-[#362B26] flex items-center justify-center text-[#C86A32] flex-shrink-0">
+                <i data-lucide="shield-check" class="w-4 h-4"></i>
+              </div>
+              <span class="font-medium">Hak Akses Berlapis Kasir & Admin</span>
+            </div>
           </div>
         </div>
 
-        <button type="submit" id="btnLoginSubmit" class="w-full py-3 rounded-2xl bg-[#C86A32] hover:bg-[#B05724] text-white font-black text-xs shadow-lg shadow-[#C86A32]/25 flex items-center justify-center gap-2 cursor-pointer transition-all">
-          <i data-lucide="log-in" class="w-4 h-4"></i> Masuk Sekarang
-        </button>
-      </form>
+        <!-- Terminal Status Footer -->
+        <div class="relative z-10 pt-8 border-t border-[#362B26] flex items-center justify-between text-[11px] text-[#B8ADA4]">
+          <span class="flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-[#2E7D5B] animate-pulse"></span> Terminal POS Aktif
+          </span>
+          <span class="font-mono text-[10px]">v2.4 Production</span>
+        </div>
+      </div>
+
+      <!-- Kolom Kanan: Form Otentikasi Petugas Modern (Pure Milk White) -->
+      <div class="lg:col-span-7 p-8 sm:p-12 flex flex-col justify-between bg-white">
+        <div>
+          <div class="space-y-1 mb-7">
+            <h3 class="text-2xl font-black text-[#1E1815] tracking-tight">Masuk ke Sistem</h3>
+            <p class="text-xs text-[#7A6F66]">Gunakan akun resmi kasir atau administrator Anda</p>
+          </div>
+
+          <!-- Alert Pesan Kesalahan Login (Default Hidden) -->
+          <div id="loginErrorMsg" class="hidden mb-5 p-3.5 rounded-2xl bg-red-50 border border-red-200 text-red-700 text-xs font-semibold flex items-center gap-2.5 animate-in fade-in">
+            <i data-lucide="alert-circle" class="w-4 h-4 flex-shrink-0 text-red-600"></i>
+            <span id="loginErrorText">Username atau kata sandi tidak sesuai.</span>
+          </div>
+
+          <!-- Form Input Login -->
+          <form onsubmit="prosesLoginKasir(event)" class="space-y-4">
+            <!-- Username Input -->
+            <div class="space-y-1.5">
+              <label for="loginUsername" class="block text-xs font-bold text-[#1E1815]">Username Petugas</label>
+              <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#7A6F66]">
+                  <i data-lucide="user" class="w-4 h-4"></i>
+                </div>
+                <input 
+                  type="text" 
+                  id="loginUsername" 
+                  required 
+                  autocomplete="username"
+                  placeholder="Masukkan username akun Anda" 
+                  class="w-full pl-10 pr-4 py-3 rounded-xl border border-[#E7DFD3] bg-[#FAF8F5] text-xs font-semibold text-[#1E1815] focus:outline-none focus:ring-2 focus:ring-[#C86A32]/25 focus:border-[#C86A32] placeholder:text-[#7A6F66]/60 transition-all">
+              </div>
+            </div>
+
+            <!-- Password Input dengan Toggle Show/Hide -->
+            <div class="space-y-1.5">
+              <label for="loginPassword" class="block text-xs font-bold text-[#1E1815]">Kata Sandi</label>
+              <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#7A6F66]">
+                  <i data-lucide="lock" class="w-4 h-4"></i>
+                </div>
+                <input 
+                  type="password" 
+                  id="loginPassword" 
+                  required 
+                  autocomplete="current-password"
+                  placeholder="Masukkan kata sandi akun" 
+                  class="w-full pl-10 pr-11 py-3 rounded-xl border border-[#E7DFD3] bg-[#FAF8F5] text-xs font-semibold text-[#1E1815] focus:outline-none focus:ring-2 focus:ring-[#C86A32]/25 focus:border-[#C86A32] placeholder:text-[#7A6F66]/60 transition-all">
+                <button 
+                  type="button" 
+                  onclick="toggleLihatPassword()" 
+                  class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-[#7A6F66] hover:text-[#1E1815] cursor-pointer"
+                  title="Lihat / Sembunyikan Password">
+                  <i data-lucide="eye" id="iconTogglePassword" class="w-4 h-4"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- Ingat Sesi Checkbox -->
+            <div class="flex items-center justify-between pt-1">
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" id="checkIngatSaya" checked class="w-4 h-4 rounded text-[#C86A32] focus:ring-[#C86A32] border-[#E7DFD3]">
+                <span class="text-xs text-[#7A6F66] font-medium">Ingat saya di perangkat ini</span>
+              </label>
+            </div>
+
+            <!-- Tombol Submit Login -->
+            <button 
+              type="submit" 
+              id="btnLoginSubmit" 
+              class="w-full py-3.5 px-6 rounded-2xl bg-[#C86A32] hover:bg-[#B05724] text-white font-black text-xs shadow-lg shadow-[#C86A32]/25 flex items-center justify-center gap-2 cursor-pointer transition-all active:scale-[0.99] mt-3">
+              <i data-lucide="log-in" class="w-4 h-4"></i> Masuk ke Sistem POS
+            </button>
+          </form>
+        </div>
+
+        <!-- Footer Hak Cipta & Keamanan -->
+        <div class="pt-6 mt-6 border-t border-[#E7DFD3] flex items-center justify-between text-[11px] text-[#7A6F66]">
+          <span class="flex items-center gap-1.5">
+            <i data-lucide="shield" class="w-3.5 h-3.5 text-[#2E7D5B]"></i> Terenkripsi & Aman
+          </span>
+          <span>&copy; 2026 MoonCafe POS</span>
+        </div>
+      </div>
+
     </div>
   </div>
 
@@ -1440,25 +1548,59 @@
       return "Rp" + Math.round(Number(val) || 0).toLocaleString('id-ID');
     }
 
-    // 1. Cek Login Session
+    // 1. Cek Login Session & Tampilan Layar Penuh
     function cekSessionLogin() {
       const saved = localStorage.getItem('mooncafe_user');
+      const pageLogin = document.getElementById('pageLogin');
       if (saved) {
         currentUser = JSON.parse(saved);
         updateUserUI();
+        if (pageLogin) pageLogin.classList.add('hidden');
       } else {
-        document.getElementById('modalLogin').classList.remove('hidden');
+        if (pageLogin) pageLogin.classList.remove('hidden');
+        setTimeout(() => {
+          const uInput = document.getElementById('loginUsername');
+          if (uInput) uInput.focus();
+        }, 150);
       }
     }
 
+    // Toggle Sembunyikan / Tampilkan Password
+    function toggleLihatPassword() {
+      const passInput = document.getElementById('loginPassword');
+      const icon = document.getElementById('iconTogglePassword');
+      if (!passInput || !icon) return;
+      
+      if (passInput.type === 'password') {
+        passInput.type = 'text';
+        icon.setAttribute('data-lucide', 'eye-off');
+      } else {
+        passInput.type = 'password';
+        icon.setAttribute('data-lucide', 'eye');
+      }
+      lucide.createIcons();
+    }
+
     async function prosesLoginKasir(event) {
-      event.preventDefault();
+      if (event) event.preventDefault();
       const u = document.getElementById('loginUsername').value.trim();
       const p = document.getElementById('loginPassword').value.trim();
       const btn = document.getElementById('btnLoginSubmit');
+      const errBox = document.getElementById('loginErrorMsg');
+      const errText = document.getElementById('loginErrorText');
+
+      if (errBox) errBox.classList.add('hidden');
+
+      if (!u || !p) {
+        if (errBox && errText) {
+          errText.innerText = 'Mohon masukkan username dan kata sandi Anda.';
+          errBox.classList.remove('hidden');
+        }
+        return;
+      }
 
       btn.disabled = true;
-      btn.innerText = 'Memverifikasi...';
+      btn.innerHTML = `<span class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span> Memverifikasi...`;
 
       try {
         const res = await fetch('/api/auth/login', {
@@ -1470,26 +1612,44 @@
 
         if (json.success) {
           currentUser = json.user;
-          localStorage.setItem('mooncafe_user', JSON.stringify(currentUser));
+          const checkIngat = document.getElementById('checkIngatSaya');
+          if (!checkIngat || checkIngat.checked) {
+            localStorage.setItem('mooncafe_user', JSON.stringify(currentUser));
+          } else {
+            sessionStorage.setItem('mooncafe_user', JSON.stringify(currentUser));
+          }
+          
           updateUserUI();
-          document.getElementById('modalLogin').classList.add('hidden');
+          const pageLogin = document.getElementById('pageLogin');
+          if (pageLogin) pageLogin.classList.add('hidden');
+          document.getElementById('loginPassword').value = '';
+
+          // Arahkan ke halaman utama sesuai role
+          if (currentUser.role === 'admin') {
+            navigasiKeHalaman('dashboard');
+          } else {
+            navigasiKeHalaman('kasir');
+          }
         } else {
-          alert('❌ ' + json.message);
+          if (errBox && errText) {
+            errText.innerText = json.message || 'Username atau kata sandi tidak valid.';
+            errBox.classList.remove('hidden');
+          } else {
+            alert('❌ ' + (json.message || 'Login gagal'));
+          }
         }
       } catch (err) {
-        alert('Kesalahan koneksi: ' + err.message);
+        if (errBox && errText) {
+          errText.innerText = 'Kesalahan koneksi ke server: ' + err.message;
+          errBox.classList.remove('hidden');
+        } else {
+          alert('Kesalahan koneksi: ' + err.message);
+        }
       } finally {
         btn.disabled = false;
-        btn.innerHTML = `<i data-lucide="log-in" class="w-4 h-4"></i> Masuk Sekarang`;
+        btn.innerHTML = `<i data-lucide="log-in" class="w-4 h-4"></i> Masuk ke Sistem POS`;
         lucide.createIcons();
       }
-    }
-
-    function isiLoginCepat(username, password) {
-      document.getElementById('loginUsername').value = username;
-      document.getElementById('loginPassword').value = password;
-      const fakeEvent = { preventDefault: () => {} };
-      prosesLoginKasir(fakeEvent);
     }
 
     function updateUserUI() {
@@ -1528,12 +1688,20 @@
     }
 
     function logoutKasir() {
-      if (confirm('Apakah Anda ingin keluar dari akun kasir ini?')) {
+      if (confirm('Apakah Anda ingin keluar dari sistem MoonCafe POS?')) {
         localStorage.removeItem('mooncafe_user');
+        sessionStorage.removeItem('mooncafe_user');
         currentUser = null;
         document.getElementById('loginUsername').value = '';
         document.getElementById('loginPassword').value = '';
-        document.getElementById('modalLogin').classList.remove('hidden');
+        const errBox = document.getElementById('loginErrorMsg');
+        if (errBox) errBox.classList.add('hidden');
+        const pageLogin = document.getElementById('pageLogin');
+        if (pageLogin) pageLogin.classList.remove('hidden');
+        setTimeout(() => {
+          const uInput = document.getElementById('loginUsername');
+          if (uInput) uInput.focus();
+        }, 150);
       }
     }
 

@@ -121,11 +121,11 @@ router.post('/auth/login', async (req, res) => {
 
 
 // =====================================================================
-// 2. DASHBOARD STATISTIK RINGKASAN
+// 2. DASHBOARD STATISTIK RINGKASAN & ANALITIK
 // =====================================================================
 /**
  * GET /api/dashboard/stats
- * Mengambil ringkasan data finansial, jumlah transaksi hari ini, dan menu terlaris.
+ * Mengambil ringkasan data finansial, statistik omzet harian, KPI admin/kasir, dan performa karyawan.
  */
 router.get('/dashboard/stats', async (req, res) => {
   try {
@@ -138,10 +138,11 @@ router.get('/dashboard/stats', async (req, res) => {
       WHERE DATE(tgl_transaksi) = CURDATE()
     `);
 
-    // 2. Total seluruh omzet kumulatif & total transaksi
+    // 2. Total seluruh omzet kumulatif, total transaksi, & pajak terkumpul
     const [allSales] = await pool.query(`
       SELECT 
         COALESCE(SUM(grand_total), 0) AS total_omzet,
+        COALESCE(SUM(pajak_10_persen), 0) AS total_pajak,
         COUNT(id_transaksi) AS total_transaksi
       FROM transaksi
     `);
@@ -154,10 +155,9 @@ router.get('/dashboard/stats', async (req, res) => {
       FROM produk
     `);
 
-    // 4. Total member terdaftar
-    const [memberStats] = await pool.query(`
-      SELECT COUNT(id_member) AS total_member FROM members
-    `);
+    // 4. Total member & total petugas karyawan
+    const [memberStats] = await pool.query(`SELECT COUNT(id_member) AS total_member FROM members`);
+    const [staffStats] = await pool.query(`SELECT COUNT(id_petugas) AS total_karyawan FROM petugas`);
 
     // 5. 3 Menu Terlaris (Top Selling)
     const [topMenus] = await pool.query(`
@@ -186,18 +186,58 @@ router.get('/dashboard/stats', async (req, res) => {
       LIMIT 5
     `);
 
+    // 7. Tren Penjualan 7 Hari Terakhir untuk Grafik
+    const [trendSales] = await pool.query(`
+      SELECT 
+        DATE_FORMAT(tgl_transaksi, '%d/%m') AS tanggal,
+        COALESCE(SUM(grand_total), 0) AS omzet,
+        COUNT(id_transaksi) AS total_transaksi
+      FROM transaksi
+      GROUP BY DATE(tgl_transaksi)
+      ORDER BY DATE(tgl_transaksi) ASC
+      LIMIT 7
+    `);
+
+    // 8. Performa Karyawan (Kasir vs Admin)
+    const [staffPerformance] = await pool.query(`
+      SELECT 
+        p.id_petugas,
+        p.nama_petugas,
+        p.role,
+        COUNT(t.id_transaksi) AS total_transaksi,
+        COALESCE(SUM(t.grand_total), 0) AS total_omzet
+      FROM petugas p
+      LEFT JOIN transaksi t ON p.id_petugas = t.id_petugas
+      GROUP BY p.id_petugas
+      ORDER BY total_omzet DESC
+    `);
+
+    // 9. Peringatan Stok Menipis (Stok <= 25)
+    const [lowStock] = await pool.query(`
+      SELECT id_produk, nama_produk, stok, gambar 
+      FROM produk 
+      WHERE stok <= 25 
+      ORDER BY stok ASC 
+      LIMIT 4
+    `);
+
     res.json({
       success: true,
       data: {
         omzetHariIni: Number(todaySales[0].omzet_hari_ini),
         transaksiHariIni: Number(todaySales[0].transaksi_hari_ini),
         totalOmzet: Number(allSales[0].total_omzet),
+        totalPajak: Number(allSales[0].total_pajak),
         totalTransaksi: Number(allSales[0].total_transaksi),
         totalProduk: Number(prodStats[0].total_produk),
         totalStok: Number(prodStats[0].total_stok),
         totalMember: Number(memberStats[0].total_member),
+        totalKaryawan: Number(staffStats[0].total_karyawan),
         topMenus,
-        recentOrders
+        recentOrders,
+        trendSales,
+        staffPerformance,
+        lowStock
       }
     });
   } catch (error) {
@@ -212,7 +252,7 @@ router.get('/dashboard/stats', async (req, res) => {
 // =====================================================================
 /**
  * GET /api/laporan
- * Mengambil rekapitulasi laporan penjualan lengkap beserta rincian pajak dan diskon.
+ * Mengambil rekapitulasi laporan penjualan lengkap beserta tren harian untuk grafik Chart.js.
  */
 router.get('/laporan', async (req, res) => {
   try {
@@ -244,11 +284,26 @@ router.get('/laporan', async (req, res) => {
       ORDER BY t.id_transaksi DESC
     `);
 
+    // Tren harian untuk visualisasi grafik Chart.js
+    const [chartData] = await pool.query(`
+      SELECT 
+        DATE_FORMAT(tgl_transaksi, '%d/%m') AS label_tgl,
+        COALESCE(SUM(subtotal), 0) AS omzet_kotor,
+        COALESCE(SUM(pajak_10_persen), 0) AS pajak,
+        COALESCE(SUM(grand_total), 0) AS omzet_bersih,
+        COUNT(id_transaksi) AS jumlah_transaksi
+      FROM transaksi
+      GROUP BY DATE(tgl_transaksi)
+      ORDER BY DATE(tgl_transaksi) ASC
+      LIMIT 14
+    `);
+
     res.json({
       success: true,
       data: {
         summary: summary[0],
-        transactions
+        transactions,
+        chartData
       }
     });
   } catch (error) {
@@ -623,6 +678,120 @@ router.put('/pengaturan-struk', async (req, res) => {
       [nama_resto, alamat, no_telepon, pesan_footer]
     );
     res.json({ success: true, message: 'Pengaturan toko & struk berhasil disimpan ke MySQL!' });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// =====================================================================
+// 7. MANAJEMEN KARYAWAN (CRUD PETUGAS / PENGGUNA) - HAK AKSES ADMIN
+// =====================================================================
+/**
+ * GET /api/petugas
+ * Mengambil daftar seluruh karyawan/petugas (Admin & Kasir)
+ */
+router.get('/petugas', async (req, res) => {
+  try {
+    const [rows] = await pool.query(`
+      SELECT 
+        id_petugas, 
+        nama_petugas, 
+        username, 
+        role, 
+        DATE_FORMAT(created_at, '%d-%m-%Y %H:%i') AS tgl_dibuat 
+      FROM petugas 
+      ORDER BY id_petugas ASC
+    `);
+    res.json({ success: true, data: rows });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+/**
+ * POST /api/petugas
+ * Menambah akun karyawan baru (Admin atau Kasir)
+ */
+router.post('/petugas', async (req, res) => {
+  try {
+    const { nama_petugas, username, password, role } = req.body;
+    if (!nama_petugas || !username || !password) {
+      return res.status(400).json({ success: false, message: 'Nama karyawan, username, dan password wajib diisi.' });
+    }
+
+    const cleanRole = (role === 'admin') ? 'admin' : 'kasir';
+
+    const [existing] = await pool.query('SELECT id_petugas FROM petugas WHERE username = ?', [username.trim()]);
+    if (existing.length > 0) {
+      return res.status(400).json({ success: false, message: `Username "${username.trim()}" sudah digunakan!` });
+    }
+
+    const [result] = await pool.query(
+      'INSERT INTO petugas (nama_petugas, username, password, role) VALUES (?, ?, ?, ?)',
+      [nama_petugas.trim(), username.trim(), password.trim(), cleanRole]
+    );
+
+    res.json({
+      success: true,
+      message: `Akun karyawan "${nama_petugas.trim()}" (${cleanRole.toUpperCase()}) berhasil dibuat!`,
+      data: { id_petugas: result.insertId }
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+/**
+ * PUT /api/petugas/:id
+ * Memperbarui data akun karyawan (Nama, Username, Role, & opsional Password)
+ */
+router.put('/petugas/:id', async (req, res) => {
+  try {
+    const id = req.params.id;
+    const { nama_petugas, username, password, role } = req.body;
+
+    if (!nama_petugas || !username) {
+      return res.status(400).json({ success: false, message: 'Nama karyawan dan username wajib diisi.' });
+    }
+
+    const cleanRole = (role === 'admin') ? 'admin' : 'kasir';
+
+    const [dup] = await pool.query('SELECT id_petugas FROM petugas WHERE username = ? AND id_petugas != ?', [username.trim(), id]);
+    if (dup.length > 0) {
+      return res.status(400).json({ success: false, message: `Username "${username.trim()}" sudah digunakan akun lain!` });
+    }
+
+    if (password && password.trim()) {
+      await pool.query(
+        'UPDATE petugas SET nama_petugas = ?, username = ?, password = ?, role = ? WHERE id_petugas = ?',
+        [nama_petugas.trim(), username.trim(), password.trim(), cleanRole, id]
+      );
+    } else {
+      await pool.query(
+        'UPDATE petugas SET nama_petugas = ?, username = ?, role = ? WHERE id_petugas = ?',
+        [nama_petugas.trim(), username.trim(), cleanRole, id]
+      );
+    }
+
+    res.json({ success: true, message: 'Data akun karyawan berhasil diperbarui!' });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+/**
+ * DELETE /api/petugas/:id
+ * Menghapus akun karyawan
+ */
+router.delete('/petugas/:id', async (req, res) => {
+  try {
+    const id = req.params.id;
+    if (Number(id) === 1) {
+      return res.status(400).json({ success: false, message: 'Akun Administrator Utama (#1) tidak boleh dihapus demi keamanan sistem.' });
+    }
+
+    await pool.query('DELETE FROM petugas WHERE id_petugas = ?', [id]);
+    res.json({ success: true, message: 'Akun karyawan berhasil dihapus dari database.' });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }

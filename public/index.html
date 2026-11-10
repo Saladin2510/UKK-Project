@@ -12,6 +12,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Chart.js CDN untuk Visualisasi Grafik Modern -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script>
     tailwind.config = {
       theme: {
@@ -153,13 +155,19 @@
           <span class="flex-1">Member</span>
         </button>
 
-        <!-- 6. LAPORAN PENJUALAN -->
+        <!-- 6. MANAJEMEN KARYAWAN (KHUSUS ADMIN) -->
+        <button onclick="navigasiKeHalaman('karyawan')" id="nav-karyawan" class="w-full flex items-center gap-3.5 px-4 py-3 rounded-2xl text-[#B8ADA4] hover:text-white hover:bg-[#362B26]/60 transition-colors text-left cursor-pointer group">
+          <i data-lucide="user-cog" class="w-4 h-4 transition-transform group-hover:scale-110"></i>
+          <span>Karyawan</span>
+        </button>
+
+        <!-- 7. LAPORAN PENJUALAN (KHUSUS ADMIN) -->
         <button onclick="navigasiKeHalaman('laporan')" id="nav-laporan" class="w-full flex items-center gap-3.5 px-4 py-3 rounded-2xl text-[#B8ADA4] hover:text-white hover:bg-[#362B26]/60 transition-colors text-left cursor-pointer group">
           <i data-lucide="bar-chart-2" class="w-4 h-4 transition-transform group-hover:scale-110"></i>
           <span>Laporan</span>
         </button>
 
-        <!-- 7. PENGATURAN TOKO & STRUK -->
+        <!-- 8. PENGATURAN TOKO & STRUK (KHUSUS ADMIN) -->
         <button onclick="navigasiKeHalaman('pengaturan')" id="nav-pengaturan" class="w-full flex items-center gap-3.5 px-4 py-3 rounded-2xl text-[#B8ADA4] hover:text-white hover:bg-[#362B26]/60 transition-colors text-left cursor-pointer group">
           <i data-lucide="settings" class="w-4 h-4 transition-transform group-hover:scale-110"></i>
           <span>Pengaturan</span>
@@ -321,8 +329,9 @@
       </div>
     </div>
 
-    <div class="p-8 overflow-y-auto flex-1 space-y-6">
-      <!-- 4 KPI Cards -->
+    <!-- ==================== TAMPILAN DASHBOARD KASIR (OPERASIONAL HARIAN) ==================== -->
+    <div id="dashboardKasirView" class="p-8 overflow-y-auto flex-1 space-y-6">
+      <!-- 4 KPI Cards Kasir -->
       <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <div class="p-5 rounded-2xl bg-[#FAF0E7] border border-[#E8D0C0] space-y-1">
           <div class="flex items-center justify-between text-[#C86A32]">
@@ -383,6 +392,131 @@
             </button>
           </div>
           <div id="dashRecentOrdersContainer" class="space-y-2.5"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== TAMPILAN DASHBOARD KHUSUS ADMIN (EKSEKUTIF ANALITIK) ==================== -->
+    <div id="dashboardAdminView" class="p-8 overflow-y-auto flex-1 space-y-6 hidden">
+      <!-- 4 Top KPI Admin Cards -->
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="p-5 rounded-2xl bg-[#FAF0E7] border border-[#E8D0C0] space-y-1">
+          <div class="flex items-center justify-between text-[#C86A32]">
+            <span class="text-xs font-bold uppercase tracking-wider">Total Omzet Toko</span>
+            <i data-lucide="trending-up" class="w-5 h-5"></i>
+          </div>
+          <p id="adminDashTotalOmzet" class="text-2xl font-black text-[#1E1815] tabular-nums mt-2">Rp0</p>
+          <p class="text-[11px] text-[#A2481A] font-medium flex items-center gap-1">
+            <span class="w-1.5 h-1.5 rounded-full bg-[#2E7D5B]"></span> Kumulatif seluruh transaksi
+          </p>
+        </div>
+
+        <div class="p-5 rounded-2xl bg-[#FDF3DC] border border-[#F4E3BE] space-y-1">
+          <div class="flex items-center justify-between text-[#9A5B13]">
+            <span class="text-xs font-bold uppercase tracking-wider">Pajak PB1 (10%)</span>
+            <i data-lucide="landmark" class="w-5 h-5"></i>
+          </div>
+          <p id="adminDashTotalPajak" class="text-2xl font-black text-[#1E1815] tabular-nums mt-2">Rp0</p>
+          <p class="text-[11px] text-[#9A5B13] font-medium">Kewajiban setoran pajak resto</p>
+        </div>
+
+        <div class="p-5 rounded-2xl bg-[#F0F5F9] border border-[#D5E3EE] space-y-1">
+          <div class="flex items-center justify-between text-[#2C6288]">
+            <span class="text-xs font-bold uppercase tracking-wider">Total Transaksi</span>
+            <i data-lucide="receipt" class="w-5 h-5"></i>
+          </div>
+          <p id="adminDashTotalTrx" class="text-2xl font-black text-[#1E1815] tabular-nums mt-2">0</p>
+          <p class="text-[11px] text-[#2C6288] font-medium">Struk terbit tersimpan</p>
+        </div>
+
+        <div class="p-5 rounded-2xl bg-[#EAF4EE] border border-[#D4EADB] space-y-1">
+          <div class="flex items-center justify-between text-[#2E7D5B]">
+            <span class="text-xs font-bold uppercase tracking-wider">Tim Karyawan</span>
+            <i data-lucide="user-check" class="w-5 h-5"></i>
+          </div>
+          <p id="adminDashTotalStaff" class="text-2xl font-black text-[#1E1815] tabular-nums mt-2">0</p>
+          <p class="text-[11px] text-[#2E7D5B] font-medium">Kasir & Admin aktif terdaftar</p>
+        </div>
+      </div>
+
+      <!-- Baris Grafik Tren Penjualan & Performa Karyawan -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Grafik Tren Mingguan Admin (Chart.js) -->
+        <div class="lg:col-span-2 p-6 rounded-2xl bg-[#FAF8F5] border border-[#E7DFD3] space-y-4 shadow-2xs">
+          <div class="flex items-center justify-between pb-2 border-b border-[#E7DFD3]">
+            <div>
+              <h5 class="font-extrabold text-sm text-[#1E1815] flex items-center gap-2">
+                <i data-lucide="bar-chart-3" class="w-4 h-4 text-[#C86A32]"></i>
+                Tren Omzet Penjualan (7 Hari Terakhir)
+              </h5>
+              <p class="text-[11px] text-[#7A6F66]">Monitoring pertumbuhan pendapatan restoran MoonCafe</p>
+            </div>
+            <span class="px-2.5 py-0.5 rounded-full bg-[#FAF0E7] text-[#C86A32] text-[10px] font-bold border border-[#E8D0C0]">
+              Grafik Eksekutif
+            </span>
+          </div>
+          <div class="w-full h-64">
+            <canvas id="adminSalesTrendChart"></canvas>
+          </div>
+        </div>
+
+        <!-- Performa Karyawan (Kasir vs Admin) -->
+        <div class="p-6 rounded-2xl bg-[#FAF8F5] border border-[#E7DFD3] space-y-4 shadow-2xs flex flex-col">
+          <div class="flex items-center justify-between pb-2 border-b border-[#E7DFD3]">
+            <h5 class="font-extrabold text-sm text-[#1E1815] flex items-center gap-2">
+              <i data-lucide="award" class="w-4 h-4 text-[#9A5B13]"></i> Performa Karyawan
+            </h5>
+            <button onclick="navigasiKeHalaman('karyawan')" class="text-[11px] font-bold text-[#C86A32] hover:underline cursor-pointer">
+              Kelola &rarr;
+            </button>
+          </div>
+          <div id="adminStaffPerformanceList" class="space-y-3 flex-1 overflow-y-auto pr-1"></div>
+        </div>
+      </div>
+
+      <!-- Baris Bawah: Peringatan Stok & Pintasan Admin -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Peringatan Stok Rendah -->
+        <div class="p-6 rounded-2xl bg-[#FAF8F5] border border-[#E7DFD3] space-y-4 shadow-2xs">
+          <div class="flex items-center justify-between pb-2 border-b border-[#E7DFD3]">
+            <h5 class="font-extrabold text-sm text-[#1E1815] flex items-center gap-2">
+              <i data-lucide="alert-circle" class="w-4 h-4 text-[#C24134]"></i> Peringatan Stok Menipis
+            </h5>
+            <span class="text-[10px] font-bold text-[#C24134] bg-[#FDF2F0] px-2 py-0.5 rounded-lg border border-[#F6D5D1]">Perlu Restock Segera</span>
+          </div>
+          <div id="adminLowStockContainer" class="space-y-2.5"></div>
+        </div>
+
+        <!-- Pintasan Cepat Tindakan Admin -->
+        <div class="p-6 rounded-2xl bg-[#FAF8F5] border border-[#E7DFD3] space-y-4 shadow-2xs flex flex-col justify-between">
+          <div class="pb-2 border-b border-[#E7DFD3]">
+            <h5 class="font-extrabold text-sm text-[#1E1815] flex items-center gap-2">
+              <i data-lucide="zap" class="w-4 h-4 text-[#C86A32]"></i> Tindakan Cepat Administrator
+            </h5>
+            <p class="text-[11px] text-[#7A6F66]">Akses langsung ke modul esensial manajemen resto</p>
+          </div>
+          <div class="grid grid-cols-2 gap-3 pt-2">
+            <button onclick="bukaModalTambahKaryawan()" class="p-3.5 rounded-xl bg-white border border-[#E7DFD3] hover:border-[#C86A32] text-left hover:shadow-xs transition-all cursor-pointer group">
+              <i data-lucide="user-plus" class="w-5 h-5 text-[#C86A32] mb-1.5 group-hover:scale-110 transition-transform"></i>
+              <p class="font-extrabold text-xs text-[#1E1815]">Tambah Karyawan</p>
+              <p class="text-[10px] text-[#7A6F66]">Buat akun kasir/admin</p>
+            </button>
+            <button onclick="navigasiKeHalaman('laporan')" class="p-3.5 rounded-xl bg-white border border-[#E7DFD3] hover:border-[#C86A32] text-left hover:shadow-xs transition-all cursor-pointer group">
+              <i data-lucide="file-text" class="w-5 h-5 text-[#2E7D5B] mb-1.5 group-hover:scale-110 transition-transform"></i>
+              <p class="font-extrabold text-xs text-[#1E1815]">Audit Laporan PB1</p>
+              <p class="text-[10px] text-[#7A6F66]">Lihat grafik & rekap</p>
+            </button>
+            <button onclick="bukaFormTambahMenu()" class="p-3.5 rounded-xl bg-white border border-[#E7DFD3] hover:border-[#C86A32] text-left hover:shadow-xs transition-all cursor-pointer group">
+              <i data-lucide="plus-circle" class="w-5 h-5 text-[#C86A32] mb-1.5 group-hover:scale-110 transition-transform"></i>
+              <p class="font-extrabold text-xs text-[#1E1815]">Input Menu Baru</p>
+              <p class="text-[10px] text-[#7A6F66]">Upload foto & resep</p>
+            </button>
+            <button onclick="navigasiKeHalaman('pengaturan')" class="p-3.5 rounded-xl bg-white border border-[#E7DFD3] hover:border-[#C86A32] text-left hover:shadow-xs transition-all cursor-pointer group">
+              <i data-lucide="settings" class="w-5 h-5 text-[#7A6F66] mb-1.5 group-hover:scale-110 transition-transform"></i>
+              <p class="font-extrabold text-xs text-[#1E1815]">Atur Struk Kasir</p>
+              <p class="text-[10px] text-[#7A6F66]">Identitas & footer nota</p>
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -539,7 +673,64 @@
   </div>
 
   <!-- ========================================================================= -->
-  <!-- 6. HALAMAN: LAPORAN PENJUALAN FINANSIAL & PAJAK PB1                       -->
+  <!-- 6. HALAMAN: MANAJEMEN KARYAWAN & HAK AKSES (CRUD PETUGAS - KHUSUS ADMIN)  -->
+  <!-- ========================================================================= -->
+  <div id="page-karyawan" class="flex-1 bg-white rounded-3xl shadow-sm border border-[#E7DFD3] overflow-hidden flex flex-col hidden">
+    <!-- Header -->
+    <div class="px-8 py-5 bg-[#231B18] text-white flex items-center justify-between flex-shrink-0 border-b border-[#362B26]">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-2xl bg-[#362B26] text-[#C86A32] border border-[#483A33] flex items-center justify-center shadow-inner">
+          <i data-lucide="user-cog" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <h3 class="font-extrabold text-lg text-white">Manajemen Karyawan & Hak Akses</h3>
+          <p class="text-xs text-[#B8ADA4]">Kelola akun pegawai, pembagian peran Kasir dan Administrator MoonCafe</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-2">
+        <button onclick="bukaModalTambahKaryawan()" class="px-4 py-2 rounded-xl bg-[#C86A32] hover:bg-[#B05724] text-white font-extrabold text-xs shadow-md shadow-[#C86A32]/20 flex items-center justify-center gap-2 transition-all cursor-pointer">
+          <i data-lucide="user-plus" class="w-4 h-4"></i> Tambah Karyawan Baru
+        </button>
+      </div>
+    </div>
+
+    <!-- Search & Info Bar -->
+    <div class="px-8 py-4 bg-[#FAF8F5] border-b border-[#E7DFD3] flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3 flex-shrink-0">
+      <div class="relative flex-1 max-w-sm">
+        <i data-lucide="search" class="w-4 h-4 text-[#7A6F66] absolute left-3.5 top-1/2 -translate-y-1/2"></i>
+        <input 
+          type="text" 
+          id="searchKaryawanInput" 
+          placeholder="Cari nama atau username karyawan..." 
+          class="w-full pl-10 pr-3 py-2 rounded-xl border border-[#E7DFD3] bg-white text-xs font-medium text-[#1E1815] focus:outline-none focus:ring-2 focus:ring-[#C86A32]/20 focus:border-[#C86A32]"
+          oninput="renderKaryawanTable()"
+        >
+      </div>
+      <span class="text-xs font-semibold text-[#7A6F66]">Akses Khusus Administrator Resto</span>
+    </div>
+
+    <!-- Table Container -->
+    <div class="p-8 overflow-y-auto flex-1">
+      <div class="border border-[#E7DFD3] rounded-2xl overflow-hidden shadow-2xs">
+        <table class="w-full text-left text-xs border-collapse">
+          <thead class="bg-[#FAF8F5] text-[#7A6F66] uppercase font-bold tracking-wider text-[11px] border-b border-[#E7DFD3]">
+            <tr>
+              <th class="py-3 px-4">ID</th>
+              <th class="py-3 px-4">Nama Lengkap</th>
+              <th class="py-3 px-4">Username Login</th>
+              <th class="py-3 px-4">Hak Akses (Role)</th>
+              <th class="py-3 px-4">Waktu Pendaftaran</th>
+              <th class="py-3 px-4 text-center">Aksi Kelola</th>
+            </tr>
+          </thead>
+          <tbody id="karyawanTableBody" class="divide-y divide-[#E7DFD3] font-medium text-[#1E1815]"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- 7. HALAMAN: LAPORAN PENJUALAN FINANSIAL & PAJAK PB1                       -->
   <!-- ========================================================================= -->
   <div id="page-laporan" class="flex-1 bg-white rounded-3xl shadow-sm border border-[#E7DFD3] overflow-hidden flex flex-col hidden">
     <div class="px-8 py-5 bg-[#231B18] text-white flex items-center justify-between flex-shrink-0 border-b border-[#362B26]">
@@ -575,6 +766,25 @@
         <div class="p-4 rounded-2xl bg-[#EAF4EE] border border-[#D4EADB] text-[#2E7D5B]">
           <span class="font-medium">Total Bersih (Grand Total):</span>
           <p id="lapGrandTotal" class="text-lg font-black tabular-nums mt-1">Rp0</p>
+        </div>
+      </div>
+
+      <!-- Grafik Analitik Tren Finansial Penjualan (Modern Chart.js) -->
+      <div class="p-6 rounded-2xl bg-[#FAF8F5] border border-[#E7DFD3] space-y-4 shadow-2xs">
+        <div class="flex items-center justify-between pb-2 border-b border-[#E7DFD3]">
+          <div>
+            <h5 class="font-extrabold text-sm text-[#1E1815] flex items-center gap-2">
+              <i data-lucide="trending-up" class="w-4 h-4 text-[#C86A32]"></i>
+              Grafik Tren Penjualan & Pajak Harian
+            </h5>
+            <p class="text-[11px] text-[#7A6F66]">Visualisasi performa omzet dan kontribusi pajak PB1 10%</p>
+          </div>
+          <span class="px-3 py-1 rounded-full bg-[#FAF0E7] text-[#C86A32] border border-[#E8D0C0] text-[10px] font-bold">
+            • Data Interaktif Realtime
+          </span>
+        </div>
+        <div class="w-full h-64 md:h-72">
+          <canvas id="laporanPenjualanChart"></canvas>
         </div>
       </div>
 
@@ -1015,10 +1225,16 @@
           <input type="password" id="loginPassword" required placeholder="kasir123 atau admin123" class="w-full px-3.5 py-2.5 rounded-xl border border-[#E7DFD3] bg-[#FAF8F5] font-semibold text-[#1E1815] focus:outline-none focus:ring-2 focus:ring-[#C86A32]/20 focus:border-[#C86A32]">
         </div>
 
-        <div class="p-3 rounded-xl bg-[#FAF8F5] border border-[#E7DFD3] text-[10px] space-y-1 text-[#7A6F66]">
+        <div class="p-3 rounded-xl bg-[#FAF8F5] border border-[#E7DFD3] text-[10px] space-y-1.5 text-[#7A6F66]">
           <p class="font-bold text-[#1E1815]">Akun Pengujian Asesor UKK:</p>
-          <p>• Kasir: <code class="text-[#C86A32] font-bold">kasir</code> / <code class="text-[#C86A32] font-bold">kasir123</code></p>
-          <p>• Admin: <code class="text-[#C86A32] font-bold">admin</code> / <code class="text-[#C86A32] font-bold">admin123</code></p>
+          <div class="grid grid-cols-2 gap-2 pt-0.5">
+            <button type="button" onclick="isiLoginCepat('kasir', 'kasir123')" class="py-1.5 px-2 rounded-lg bg-white border border-[#E7DFD3] hover:border-[#2E7D5B] text-[#1E1815] font-bold text-[10px] flex items-center justify-center gap-1 transition-all cursor-pointer">
+              <span class="w-1.5 h-1.5 rounded-full bg-[#2E7D5B]"></span> Login Kasir
+            </button>
+            <button type="button" onclick="isiLoginCepat('admin', 'admin123')" class="py-1.5 px-2 rounded-lg bg-white border border-[#E7DFD3] hover:border-[#C86A32] text-[#1E1815] font-bold text-[10px] flex items-center justify-center gap-1 transition-all cursor-pointer">
+              <span class="w-1.5 h-1.5 rounded-full bg-[#C86A32]"></span> Login Admin
+            </button>
+          </div>
         </div>
 
         <button type="submit" id="btnLoginSubmit" class="w-full py-3 rounded-2xl bg-[#C86A32] hover:bg-[#B05724] text-white font-black text-xs shadow-lg shadow-[#C86A32]/25 flex items-center justify-center gap-2 cursor-pointer transition-all">
@@ -1066,6 +1282,59 @@
           </button>
           <button type="submit" id="btnSubmitFormMember" class="flex-1 py-2.5 rounded-xl bg-[#2E7D5B] hover:bg-[#25664A] text-white font-extrabold shadow-md shadow-[#2E7D5B]/25 flex items-center justify-center gap-1.5 cursor-pointer">
             <i data-lucide="check" class="w-4 h-4"></i> Simpan Member
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- MODAL FORM TAMBAH / EDIT KARYAWAN (CRUD PETUGAS)                          -->
+  <!-- ========================================================================= -->
+  <div id="modalFormKaryawan" class="fixed inset-0 bg-[#231B18]/70 backdrop-blur-sm z-[60] flex items-center justify-center p-6 hidden">
+    <div class="bg-white w-full max-w-md rounded-3xl shadow-2xl border border-[#E7DFD3] overflow-hidden animate-in zoom-in-95 duration-200">
+      <div class="px-6 py-4 bg-[#231B18] text-white flex items-center justify-between border-b border-[#362B26]">
+        <h4 class="font-extrabold text-sm text-white flex items-center gap-2" id="formKaryawanTitle">
+          <i data-lucide="user-plus" class="w-4 h-4 text-[#C86A32]"></i> Tambah Karyawan Baru
+        </h4>
+        <button onclick="tutupModalKaryawan()" class="text-[#B8ADA4] hover:text-white cursor-pointer">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <form onsubmit="simpanKaryawan(event)" class="p-6 space-y-4 text-xs font-bold text-[#1E1815]">
+        <input type="hidden" id="formKaryawanId" value="">
+        
+        <div class="space-y-1.5">
+          <label>Nama Lengkap Pegawai <span class="text-[#C24134]">*</span></label>
+          <input type="text" id="formKaryawanNama" required placeholder="Contoh: Saladin Junior" class="w-full px-3.5 py-2.5 rounded-xl border border-[#E7DFD3] bg-[#FAF8F5] font-semibold text-[#1E1815] focus:outline-none focus:ring-2 focus:ring-[#C86A32]/20 focus:border-[#C86A32]">
+        </div>
+
+        <div class="space-y-1.5">
+          <label>Username Akun <span class="text-[#C24134]">*</span></label>
+          <input type="text" id="formKaryawanUsername" required placeholder="Contoh: saladin_kasir" class="w-full px-3.5 py-2.5 rounded-xl border border-[#E7DFD3] bg-[#FAF8F5] font-semibold text-[#1E1815] focus:outline-none focus:ring-2 focus:ring-[#C86A32]/20 focus:border-[#C86A32]">
+        </div>
+
+        <div class="space-y-1.5">
+          <label>Hak Akses / Role Karyawan <span class="text-[#C24134]">*</span></label>
+          <select id="formKaryawanRole" required class="w-full px-3.5 py-2.5 rounded-xl border border-[#E7DFD3] bg-[#FAF8F5] font-semibold text-[#1E1815] focus:outline-none focus:ring-2 focus:ring-[#C86A32]/20 focus:border-[#C86A32]">
+            <option value="kasir">Kasir (Akses POS Kasir, Dashboard Kasir, Menu, Member, Transaksi)</option>
+            <option value="admin">Administrator (Akses Penuh: Dashboard Admin, Manajemen Karyawan, Laporan & Grafik, Pengaturan Toko)</option>
+          </select>
+        </div>
+
+        <div class="space-y-1.5">
+          <label id="formKaryawanPasswordLabel">Password Akun <span class="text-[#C24134]">*</span></label>
+          <input type="password" id="formKaryawanPassword" placeholder="Minimal 4 karakter" class="w-full px-3.5 py-2.5 rounded-xl border border-[#E7DFD3] bg-[#FAF8F5] font-semibold text-[#1E1815] focus:outline-none focus:ring-2 focus:ring-[#C86A32]/20 focus:border-[#C86A32]">
+          <p id="formKaryawanPasswordHint" class="text-[10px] text-[#7A6F66]">Gunakan password yang aman.</p>
+        </div>
+
+        <div class="pt-2 flex gap-3">
+          <button type="button" onclick="tutupModalKaryawan()" class="flex-1 py-2.5 rounded-xl border border-[#E7DFD3] text-[#7A6F66] font-bold hover:bg-[#FAF8F5] cursor-pointer">
+            Batal
+          </button>
+          <button type="submit" id="btnSubmitFormKaryawan" class="flex-1 py-2.5 rounded-xl bg-[#C86A32] hover:bg-[#B05724] text-white font-extrabold shadow-md shadow-[#C86A32]/25 flex items-center justify-center gap-1.5 cursor-pointer">
+            <i data-lucide="check" class="w-4 h-4"></i> Simpan Karyawan
           </button>
         </div>
       </form>
@@ -1216,13 +1485,46 @@
       }
     }
 
+    function isiLoginCepat(username, password) {
+      document.getElementById('loginUsername').value = username;
+      document.getElementById('loginPassword').value = password;
+      const fakeEvent = { preventDefault: () => {} };
+      prosesLoginKasir(fakeEvent);
+    }
+
     function updateUserUI() {
       if (!currentUser) return;
       document.getElementById('userNamaDisplay').innerText = currentUser.nama_petugas;
-      document.getElementById('userRoleDisplay').innerHTML = `
-        <span class="w-1.5 h-1.5 rounded-full bg-[#2E7D5B] animate-pulse"></span> 
-        ${currentUser.role.toUpperCase()} Aktif
-      `;
+      
+      const navKaryawan = document.getElementById('nav-karyawan');
+      const navLaporan = document.getElementById('nav-laporan');
+      const navPengaturan = document.getElementById('nav-pengaturan');
+      const dashKasirView = document.getElementById('dashboardKasirView');
+      const dashAdminView = document.getElementById('dashboardAdminView');
+
+      if (currentUser.role === 'admin') {
+        document.getElementById('userRoleDisplay').innerHTML = `
+          <span class="w-1.5 h-1.5 rounded-full bg-[#C86A32] animate-pulse"></span> 
+          ADMINISTRATOR
+        `;
+        if (navKaryawan) navKaryawan.classList.remove('hidden');
+        if (navLaporan) navLaporan.classList.remove('hidden');
+        if (navPengaturan) navPengaturan.classList.remove('hidden');
+        if (dashKasirView) dashKasirView.classList.add('hidden');
+        if (dashAdminView) dashAdminView.classList.remove('hidden');
+      } else {
+        document.getElementById('userRoleDisplay').innerHTML = `
+          <span class="w-1.5 h-1.5 rounded-full bg-[#2E7D5B] animate-pulse"></span> 
+          KASIR AKTIF
+        `;
+        // Kasir hanya memiliki hak: dashboard saat ini, kasir, transaksi, menu, member
+        if (navKaryawan) navKaryawan.classList.add('hidden');
+        if (navLaporan) navLaporan.classList.add('hidden');
+        if (navPengaturan) navPengaturan.classList.add('hidden');
+        if (dashKasirView) dashKasirView.classList.remove('hidden');
+        if (dashAdminView) dashAdminView.classList.add('hidden');
+      }
+      lucide.createIcons();
     }
 
     function logoutKasir() {
@@ -1239,7 +1541,13 @@
     // 🧭 NAVIGASI HALAMAN SPA (WARM ESPRESSO & OAT CREAM THEME)
     // =========================================================================
     function navigasiKeHalaman(namaPage) {
-      const pages = ['kasir', 'dashboard', 'transaksi', 'menu', 'member', 'laporan', 'pengaturan'];
+      if (currentUser && currentUser.role === 'kasir' && ['karyawan', 'laporan', 'pengaturan'].includes(namaPage)) {
+        alert('⚠️ Akses Terbatas: Halaman ' + namaPage.toUpperCase() + ' hanya dapat diakses oleh Administrator Resto.');
+        navigasiKeHalaman('kasir');
+        return;
+      }
+
+      const pages = ['kasir', 'dashboard', 'transaksi', 'menu', 'member', 'karyawan', 'laporan', 'pengaturan'];
       pages.forEach(p => {
         const el = document.getElementById(`page-${p}`);
         if (el) el.classList.add('hidden');
@@ -1262,6 +1570,7 @@
       else if (namaPage === 'transaksi') loadRiwayatTransaksi();
       else if (namaPage === 'menu') { renderCrudMenuTable(); }
       else if (namaPage === 'member') loadMembersList();
+      else if (namaPage === 'karyawan') loadKaryawanList();
       else if (namaPage === 'laporan') loadLaporanPenjualan();
       else if (namaPage === 'pengaturan') loadPengaturanTokoData();
       else if (namaPage === 'kasir') { renderCart(); }
@@ -1849,8 +2158,13 @@
       }
     }
 
+    // Instance Grafik Chart.js
+    let chartLaporanInstance = null;
+    let chartAdminInstance = null;
+    let databaseKaryawan = [];
+
     // =========================================================================
-    // 🌟 DASHBOARD REALTIME STATISTIK 🌟
+    // 🌟 DASHBOARD REALTIME STATISTIK (KASIR & ADMIN) 🌟
     // =========================================================================
     async function loadDashboardStats() {
       try {
@@ -1858,64 +2172,209 @@
         const json = await res.json();
         if (json.success) {
           const d = json.data;
-          document.getElementById('dashOmzetHariIni').innerText = formatRp(d.omzetHariIni);
-          document.getElementById('dashTrxHariIni').innerText = `${d.transaksiHariIni} Transaksi`;
-          document.getElementById('dashTotalProduk').innerText = `${d.totalProduk} Menu`;
-          document.getElementById('dashTotalStok').innerText = `Total Stok: ${d.totalStok} porsi`;
-          document.getElementById('dashTotalMember').innerText = `${d.totalMember} Orang`;
 
-          // Top Menus
+          // 1. Tampilan Khusus Kasir
+          const elOmzetHariIni = document.getElementById('dashOmzetHariIni');
+          if (elOmzetHariIni) elOmzetHariIni.innerText = formatRp(d.omzetHariIni);
+          const elTrxHariIni = document.getElementById('dashTrxHariIni');
+          if (elTrxHariIni) elTrxHariIni.innerText = `${d.transaksiHariIni} Transaksi`;
+          const elTotalProduk = document.getElementById('dashTotalProduk');
+          if (elTotalProduk) elTotalProduk.innerText = `${d.totalProduk} Menu`;
+          const elTotalStok = document.getElementById('dashTotalStok');
+          if (elTotalStok) elTotalStok.innerText = `Total Stok: ${d.totalStok} porsi`;
+          const elTotalMember = document.getElementById('dashTotalMember');
+          if (elTotalMember) elTotalMember.innerText = `${d.totalMember} Orang`;
+
+          // Top Menus Kasir
           const topBox = document.getElementById('dashTopMenuContainer');
-          topBox.innerHTML = '';
-          if (d.topMenus && d.topMenus.length > 0) {
-            d.topMenus.forEach(m => {
-              const div = document.createElement('div');
-              div.className = "flex items-center justify-between p-3 rounded-xl bg-white border border-[#E7DFD3] shadow-2xs";
-              div.innerHTML = `
-                <div class="flex items-center gap-3">
-                  <img src="${m.gambar}" class="w-10 h-10 rounded-xl object-cover border border-[#E7DFD3]">
-                  <div>
-                    <h6 class="font-extrabold text-xs text-[#1E1815]">${m.nama_produk}</h6>
-                    <span class="text-[10px] text-[#7A6F66] font-bold uppercase">${m.nama_kategori}</span>
+          if (topBox) {
+            topBox.innerHTML = '';
+            if (d.topMenus && d.topMenus.length > 0) {
+              d.topMenus.forEach(m => {
+                const div = document.createElement('div');
+                div.className = "flex items-center justify-between p-3 rounded-xl bg-white border border-[#E7DFD3] shadow-2xs";
+                div.innerHTML = `
+                  <div class="flex items-center gap-3">
+                    <img src="${m.gambar}" class="w-10 h-10 rounded-xl object-cover border border-[#E7DFD3]">
+                    <div>
+                      <h6 class="font-extrabold text-xs text-[#1E1815]">${m.nama_produk}</h6>
+                      <span class="text-[10px] text-[#7A6F66] font-bold uppercase">${m.nama_kategori}</span>
+                    </div>
                   </div>
-                </div>
-                <span class="px-2.5 py-1 rounded-lg bg-[#FAF0E7] text-[#C86A32] border border-[#E8D0C0] text-xs font-black">
-                  ${m.total_terjual} Porsi
-                </span>
-              `;
-              topBox.appendChild(div);
-            });
-          } else {
-            topBox.innerHTML = `<p class="text-xs text-[#7A6F66] font-medium py-3 text-center">Belum ada menu yang terjual.</p>`;
+                  <span class="px-2.5 py-1 rounded-lg bg-[#FAF0E7] text-[#C86A32] border border-[#E8D0C0] text-xs font-black">
+                    ${m.total_terjual} Porsi
+                  </span>
+                `;
+                topBox.appendChild(div);
+              });
+            } else {
+              topBox.innerHTML = `<p class="text-xs text-[#7A6F66] font-medium py-3 text-center">Belum ada menu yang terjual.</p>`;
+            }
           }
 
-          // Recent Orders
+          // Recent Orders Kasir
           const recentBox = document.getElementById('dashRecentOrdersContainer');
-          recentBox.innerHTML = '';
-          if (d.recentOrders && d.recentOrders.length > 0) {
-            d.recentOrders.forEach(o => {
-              const div = document.createElement('div');
-              div.className = "flex items-center justify-between p-2.5 rounded-xl bg-white border border-[#E7DFD3] text-xs shadow-2xs";
-              div.innerHTML = `
-                <div>
-                  <p class="font-bold text-[#1E1815] font-mono">${o.nomor_nota}</p>
-                  <p class="text-[10px] text-[#7A6F66]">${o.jam} • ${o.tipe_pesanan.toUpperCase()}</p>
-                </div>
-                <span class="font-black text-[#1E1815] tabular-nums">${formatRp(o.grand_total)}</span>
-              `;
-              recentBox.appendChild(div);
-            });
-          } else {
-            recentBox.innerHTML = `<p class="text-xs text-[#7A6F66] font-medium py-3 text-center">Belum ada transaksi.</p>`;
+          if (recentBox) {
+            recentBox.innerHTML = '';
+            if (d.recentOrders && d.recentOrders.length > 0) {
+              d.recentOrders.forEach(o => {
+                const div = document.createElement('div');
+                div.className = "flex items-center justify-between p-2.5 rounded-xl bg-white border border-[#E7DFD3] text-xs shadow-2xs";
+                div.innerHTML = `
+                  <div>
+                    <p class="font-bold text-[#1E1815] font-mono">${o.nomor_nota}</p>
+                    <p class="text-[10px] text-[#7A6F66]">${o.jam} • ${o.tipe_pesanan.toUpperCase()}</p>
+                  </div>
+                  <span class="font-black text-[#1E1815] tabular-nums">${formatRp(o.grand_total)}</span>
+                `;
+                recentBox.appendChild(div);
+              });
+            } else {
+              recentBox.innerHTML = `<p class="text-xs text-[#7A6F66] font-medium py-3 text-center">Belum ada transaksi.</p>`;
+            }
           }
+
+          // 2. Tampilan Khusus Dashboard Admin
+          if (currentUser && currentUser.role === 'admin') {
+            const elAdminOmzet = document.getElementById('adminDashTotalOmzet');
+            if (elAdminOmzet) elAdminOmzet.innerText = formatRp(d.totalOmzet);
+            const elAdminPajak = document.getElementById('adminDashTotalPajak');
+            if (elAdminPajak) elAdminPajak.innerText = formatRp(d.totalPajak);
+            const elAdminTrx = document.getElementById('adminDashTotalTrx');
+            if (elAdminTrx) elAdminTrx.innerText = `${d.totalTransaksi} Transaksi`;
+            const elAdminStaff = document.getElementById('adminDashTotalStaff');
+            if (elAdminStaff) elAdminStaff.innerText = `${d.totalKaryawan} Pegawai`;
+
+            // Render Performa Karyawan di Admin Dashboard
+            const staffListEl = document.getElementById('adminStaffPerformanceList');
+            if (staffListEl) {
+              staffListEl.innerHTML = '';
+              if (d.staffPerformance && d.staffPerformance.length > 0) {
+                d.staffPerformance.forEach(s => {
+                  const div = document.createElement('div');
+                  div.className = "p-3 rounded-xl bg-white border border-[#E7DFD3] flex items-center justify-between shadow-2xs text-xs";
+                  const isAdminRole = s.role === 'admin';
+                  div.innerHTML = `
+                    <div class="flex items-center gap-2.5">
+                      <div class="w-8 h-8 rounded-full ${isAdminRole ? 'bg-[#FAF0E7] text-[#C86A32]' : 'bg-[#EAF4EE] text-[#2E7D5B]'} flex items-center justify-center font-bold">
+                        <i data-lucide="${isAdminRole ? 'shield' : 'user'}" class="w-4 h-4"></i>
+                      </div>
+                      <div>
+                        <p class="font-bold text-[#1E1815]">${s.nama_petugas}</p>
+                        <span class="text-[10px] font-bold uppercase tracking-wider ${isAdminRole ? 'text-[#C86A32]' : 'text-[#2E7D5B]'}">${s.role}</span>
+                      </div>
+                    </div>
+                    <div class="text-right">
+                      <p class="font-black text-[#1E1815] tabular-nums">${formatRp(s.total_omzet)}</p>
+                      <p class="text-[10px] text-[#7A6F66]">${s.total_transaksi} Transaksi</p>
+                    </div>
+                  `;
+                  staffListEl.appendChild(div);
+                });
+              } else {
+                staffListEl.innerHTML = `<p class="text-xs text-[#7A6F66] text-center py-4">Belum ada data performa karyawan.</p>`;
+              }
+            }
+
+            // Peringatan Stok Menipis di Admin Dashboard
+            const lowStockBox = document.getElementById('adminLowStockContainer');
+            if (lowStockBox) {
+              lowStockBox.innerHTML = '';
+              if (d.lowStock && d.lowStock.length > 0) {
+                d.lowStock.forEach(p => {
+                  const div = document.createElement('div');
+                  div.className = "flex items-center justify-between p-2.5 rounded-xl bg-white border border-[#E7DFD3] text-xs shadow-2xs";
+                  div.innerHTML = `
+                    <div class="flex items-center gap-2.5">
+                      <img src="${p.gambar}" class="w-8 h-8 rounded-lg object-cover border border-[#E7DFD3]">
+                      <span class="font-bold text-[#1E1815]">${p.nama_produk}</span>
+                    </div>
+                    <span class="px-2.5 py-0.5 rounded-lg text-xs font-black ${p.stok <= 10 ? 'bg-[#FDF2F0] text-[#C24134] border border-[#F6D5D1]' : 'bg-[#FAF0E7] text-[#C86A32] border border-[#E8D0C0]'}">
+                      Sisa ${p.stok} Porsi
+                    </span>
+                  `;
+                  lowStockBox.appendChild(div);
+                });
+              } else {
+                lowStockBox.innerHTML = `<p class="text-xs text-[#2E7D5B] font-bold text-center py-3">✅ Seluruh stok produk dalam kondisi aman.</p>`;
+              }
+            }
+
+            // Render Grafik Tren Penjualan Admin (Chart.js)
+            renderAdminSalesChart(d.trendSales || []);
+          }
+
+          lucide.createIcons();
         }
       } catch (err) {
-        console.error(err);
+        console.error('Error load dashboard:', err);
       }
     }
 
+    // Render Grafik Tren Omzet di Dashboard Admin
+    function renderAdminSalesChart(trendData) {
+      const canvas = document.getElementById('adminSalesTrendChart');
+      if (!canvas) return;
+
+      const labels = trendData.length > 0 ? trendData.map(t => t.tanggal) : ['Hari Ini'];
+      const dataValues = trendData.length > 0 ? trendData.map(t => Number(t.omzet)) : [0];
+
+      if (chartAdminInstance) {
+        chartAdminInstance.destroy();
+      }
+
+      const ctx = canvas.getContext('2d');
+      chartAdminInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Omzet Harian (Rp)',
+            data: dataValues,
+            borderColor: '#C86A32',
+            backgroundColor: 'rgba(200, 106, 50, 0.12)',
+            borderWidth: 3,
+            fill: true,
+            tension: 0.35,
+            pointRadius: 4,
+            pointHoverRadius: 6,
+            pointBackgroundColor: '#FFFFFF',
+            pointBorderColor: '#C86A32',
+            pointBorderWidth: 2
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  return ' Omzet: ' + formatRp(context.raw);
+                }
+              }
+            }
+          },
+          scales: {
+            y: {
+              ticks: {
+                callback: function(val) { return 'Rp' + (val >= 1000 ? (val/1000) + 'k' : val); },
+                font: { size: 10 }
+              },
+              grid: { color: 'rgba(231, 223, 211, 0.4)' }
+            },
+            x: {
+              grid: { display: false },
+              ticks: { font: { size: 10 } }
+            }
+          }
+        }
+      });
+    }
+
     // =========================================================================
-    // 🌟 LAPORAN PENJUALAN 🌟
+    // 🌟 LAPORAN PENJUALAN DENGAN VISUALISASI GRAFIK CHART.JS 🌟
     // =========================================================================
     async function loadLaporanPenjualan() {
       const tbody = document.getElementById('laporanTableBody');
@@ -1951,9 +2410,268 @@
           } else {
             tbody.innerHTML = `<tr><td colspan="8" class="text-center py-8 text-[#7A6F66] font-bold">Belum ada riwayat transaksi untuk laporan.</td></tr>`;
           }
+
+          // Render Grafik Analitik Laporan Penjualan (Chart.js)
+          renderLaporanChart(json.data.chartData || []);
         }
       } catch (err) {
         tbody.innerHTML = `<tr><td colspan="8" class="text-center py-8 text-[#C24134] font-bold">Gagal: ${err.message}</td></tr>`;
+      }
+    }
+
+    // Render Grafik di Halaman Laporan Penjualan
+    function renderLaporanChart(chartData) {
+      const canvas = document.getElementById('laporanPenjualanChart');
+      if (!canvas) return;
+
+      const labels = chartData.length > 0 ? chartData.map(c => c.label_tgl) : ['Hari Ini'];
+      const omzetValues = chartData.length > 0 ? chartData.map(c => Number(c.omzet_bersih)) : [0];
+      const pajakValues = chartData.length > 0 ? chartData.map(c => Number(c.pajak)) : [0];
+
+      if (chartLaporanInstance) {
+        chartLaporanInstance.destroy();
+      }
+
+      const ctx = canvas.getContext('2d');
+      chartLaporanInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [
+            {
+              type: 'line',
+              label: 'Omzet Bersih Penjualan',
+              data: omzetValues,
+              borderColor: '#C86A32',
+              backgroundColor: 'rgba(200, 106, 50, 0.1)',
+              borderWidth: 3,
+              fill: false,
+              tension: 0.35,
+              pointRadius: 4,
+              pointHoverRadius: 6,
+              pointBackgroundColor: '#FFFFFF',
+              pointBorderColor: '#C86A32',
+              yAxisID: 'y'
+            },
+            {
+              type: 'bar',
+              label: 'Pajak PB1 (10%)',
+              data: pajakValues,
+              backgroundColor: 'rgba(46, 125, 91, 0.75)',
+              borderRadius: 8,
+              barPercentage: 0.5,
+              yAxisID: 'y'
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              display: true,
+              position: 'top',
+              labels: {
+                font: { size: 11, family: '"Plus Jakarta Sans", sans-serif' },
+                boxWidth: 12
+              }
+            },
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  return ' ' + context.dataset.label + ': ' + formatRp(context.raw);
+                }
+              }
+            }
+          },
+          scales: {
+            y: {
+              ticks: {
+                callback: function(val) { return 'Rp' + (val >= 1000 ? (val/1000) + 'k' : val); },
+                font: { size: 10 }
+              },
+              grid: { color: 'rgba(231, 223, 211, 0.4)' }
+            },
+            x: {
+              grid: { display: false },
+              ticks: { font: { size: 10 } }
+            }
+          }
+        }
+      });
+    }
+
+    // =========================================================================
+    // 👥 MANAJEMEN KARYAWAN & HAK AKSES (CRUD PETUGAS)
+    // =========================================================================
+    async function loadKaryawanList() {
+      const tbody = document.getElementById('karyawanTableBody');
+      if (tbody) tbody.innerHTML = `<tr><td colspan="6" class="text-center py-8 text-[#7A6F66] font-bold">Memuat data pegawai dari MySQL...</td></tr>`;
+
+      try {
+        const res = await fetch('/api/petugas');
+        const json = await res.json();
+        if (json.success) {
+          databaseKaryawan = json.data;
+          renderKaryawanTable();
+        }
+      } catch (err) {
+        console.error('Gagal mengambil data karyawan:', err);
+      }
+    }
+
+    function renderKaryawanTable() {
+      const tbody = document.getElementById('karyawanTableBody');
+      if (!tbody) return;
+      tbody.innerHTML = '';
+
+      const keyword = (document.getElementById('searchKaryawanInput')?.value || '').toLowerCase();
+      const filtered = databaseKaryawan.filter(k => 
+        k.nama_petugas.toLowerCase().includes(keyword) || 
+        k.username.toLowerCase().includes(keyword) ||
+        k.role.toLowerCase().includes(keyword)
+      );
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" class="text-center py-8 text-[#7A6F66] font-bold">Tidak ada karyawan yang sesuai pencarian.</td></tr>`;
+        return;
+      }
+
+      filtered.forEach(k => {
+        const tr = document.createElement('tr');
+        tr.className = "hover:bg-[#FAF8F5] transition-colors";
+        const isAdmin = k.role === 'admin';
+        tr.innerHTML = `
+          <td class="py-3.5 px-4 font-mono font-bold text-[#7A6F66]">#${k.id_petugas}</td>
+          <td class="py-3.5 px-4">
+            <div class="flex items-center gap-2.5">
+              <div class="w-8 h-8 rounded-full ${isAdmin ? 'bg-[#FAF0E7] text-[#C86A32]' : 'bg-[#EAF4EE] text-[#2E7D5B]'} flex items-center justify-center font-bold text-xs flex-shrink-0">
+                <i data-lucide="${isAdmin ? 'shield' : 'user'}" class="w-4 h-4"></i>
+              </div>
+              <div>
+                <p class="font-extrabold text-[#1E1815] text-xs">${k.nama_petugas}</p>
+                ${Number(k.id_petugas) === 1 ? '<span class="text-[9px] text-[#C86A32] font-black uppercase">Superadmin Utama</span>' : ''}
+              </div>
+            </div>
+          </td>
+          <td class="py-3.5 px-4 font-mono font-semibold text-[#1E1815]">${k.username}</td>
+          <td class="py-3.5 px-4">
+            <span class="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${isAdmin ? 'bg-[#FAF0E7] text-[#C86A32] border border-[#E8D0C0]' : 'bg-[#EAF4EE] text-[#2E7D5B] border border-[#D4EADB]'}">
+              ${k.role.toUpperCase()}
+            </span>
+          </td>
+          <td class="py-3.5 px-4 text-[#7A6F66] text-xs">${k.tgl_dibuat || '-'}</td>
+          <td class="py-3.5 px-4 text-center">
+            <div class="flex items-center justify-center gap-1.5">
+              <button onclick="bukaModalEditKaryawan(${k.id_petugas})" title="Edit Akun Karyawan" class="p-2 rounded-xl text-[#7A6F66] hover:text-[#C86A32] hover:bg-[#FAF0E7] transition-colors cursor-pointer">
+                <i data-lucide="edit-3" class="w-4 h-4"></i>
+              </button>
+              ${Number(k.id_petugas) !== 1 ? `
+                <button onclick="hapusKaryawan(${k.id_petugas}, '${k.nama_petugas}')" title="Hapus Akun Karyawan" class="p-2 rounded-xl text-[#7A6F66] hover:text-[#C24134] hover:bg-[#FDF2F0] transition-colors cursor-pointer">
+                  <i data-lucide="trash-2" class="w-4 h-4"></i>
+                </button>
+              ` : '<span class="text-[10px] text-[#B8ADA4] font-bold px-2">Terkunci</span>'}
+            </div>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      lucide.createIcons();
+    }
+
+    function bukaModalTambahKaryawan() {
+      document.getElementById('formKaryawanTitle').innerHTML = `<i data-lucide="user-plus" class="w-4 h-4 text-[#C86A32]"></i> Tambah Karyawan Baru`;
+      document.getElementById('formKaryawanId').value = '';
+      document.getElementById('formKaryawanNama').value = '';
+      document.getElementById('formKaryawanUsername').value = '';
+      document.getElementById('formKaryawanPassword').value = '';
+      document.getElementById('formKaryawanPassword').required = true;
+      document.getElementById('formKaryawanPasswordLabel').innerHTML = `Password Akun <span class="text-[#C24134]">*</span>`;
+      document.getElementById('formKaryawanPasswordHint').innerText = 'Minimal 4 karakter untuk keamanan akun.';
+      document.getElementById('formKaryawanRole').value = 'kasir';
+      document.getElementById('modalFormKaryawan').classList.remove('hidden');
+      lucide.createIcons();
+    }
+
+    function bukaModalEditKaryawan(id) {
+      const k = databaseKaryawan.find(item => item.id_petugas === id);
+      if (!k) return;
+
+      document.getElementById('formKaryawanTitle').innerHTML = `<i data-lucide="edit-3" class="w-4 h-4 text-[#C86A32]"></i> Edit Karyawan #${k.id_petugas}`;
+      document.getElementById('formKaryawanId').value = k.id_petugas;
+      document.getElementById('formKaryawanNama').value = k.nama_petugas;
+      document.getElementById('formKaryawanUsername').value = k.username;
+      document.getElementById('formKaryawanPassword').value = '';
+      document.getElementById('formKaryawanPassword').required = false;
+      document.getElementById('formKaryawanPasswordLabel').innerText = 'Password Baru (Opsional)';
+      document.getElementById('formKaryawanPasswordHint').innerText = 'Kosongkan jika tidak ingin mengubah password akun saat ini.';
+      document.getElementById('formKaryawanRole').value = k.role;
+      document.getElementById('modalFormKaryawan').classList.remove('hidden');
+      lucide.createIcons();
+    }
+
+    function tutupModalKaryawan() {
+      document.getElementById('modalFormKaryawan').classList.add('hidden');
+    }
+
+    async function simpanKaryawan(event) {
+      event.preventDefault();
+      const id = document.getElementById('formKaryawanId').value;
+      const nama = document.getElementById('formKaryawanNama').value.trim();
+      const username = document.getElementById('formKaryawanUsername').value.trim();
+      const password = document.getElementById('formKaryawanPassword').value.trim();
+      const role = document.getElementById('formKaryawanRole').value;
+      const btn = document.getElementById('btnSubmitFormKaryawan');
+
+      btn.disabled = true;
+      btn.innerText = 'Menyimpan...';
+
+      const payload = { nama_petugas: nama, username: username, role: role };
+      if (password) payload.password = password;
+
+      const url = id ? `/api/petugas/${id}` : '/api/petugas';
+      const method = id ? 'PUT' : 'POST';
+
+      try {
+        const res = await fetch(url, {
+          method: method,
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const json = await res.json();
+        if (json.success) {
+          alert('✅ ' + json.message);
+          tutupModalKaryawan();
+          await loadKaryawanList();
+          await loadDashboardStats();
+        } else {
+          alert('❌ Gagal: ' + json.message);
+        }
+      } catch (err) {
+        alert('Kesalahan jaringan: ' + err.message);
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = `<i data-lucide="check" class="w-4 h-4"></i> Simpan Karyawan`;
+        lucide.createIcons();
+      }
+    }
+
+    async function hapusKaryawan(id, nama) {
+      if (!confirm(`Hapus akun karyawan "${nama}"? Akun ini tidak akan dapat login kembali.`)) return;
+
+      try {
+        const res = await fetch(`/api/petugas/${id}`, { method: 'DELETE' });
+        const json = await res.json();
+        if (json.success) {
+          alert('✅ ' + json.message);
+          await loadKaryawanList();
+          await loadDashboardStats();
+        } else {
+          alert('⚠️ ' + json.message);
+        }
+      } catch (err) {
+        alert('Kesalahan: ' + err.message);
       }
     }
 

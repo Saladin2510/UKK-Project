@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panduan Ujian & Wawancara UKK 2026 - PoS Kasir MoonCafe</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    code, pre { font-family: 'JetBrains Mono', monospace; }
+    @media print {
+      .no-print { display: none !important; }
+      body { background: white !important; color: black !important; padding: 0 !important; }
+      .page-break { page-break-before: always; }
+      .card { border: 1px solid #ccc !important; box-shadow: none !important; }
+    }
+  </style>
+</head>
+<body class="bg-[#F7F3EC] text-[#1E1815] min-h-screen p-4 sm:p-8">
+
+  <!-- Floating Print Bar -->
+  <header class="no-print max-w-4xl mx-auto mb-6 bg-white p-4 rounded-2xl border border-[#E7DFD3] shadow-md flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-xl bg-[#C86A32] text-white flex items-center justify-center font-bold">
+        <i data-lucide="book-open" class="w-5 h-5"></i>
+      </div>
+      <div>
+        <h1 class="font-extrabold text-sm sm:text-base text-[#1E1815]">Panduan Ujian Praktik & Wawancara Asesor UKK 2026</h1>
+        <p class="text-xs text-[#7A6F66]">Proyek: PoS Kasir MoonCafe • Peserta: Saladin</p>
+      </div>
+    </div>
+    <div class="flex items-center gap-2">
+      <a href="http://localhost:3000" target="_blank" class="px-3.5 py-2 rounded-xl border border-[#E7DFD3] bg-[#FAF8F5] hover:bg-[#EFE9DF] text-xs font-bold text-[#1E1815] flex items-center gap-1.5 transition-colors">
+        <i data-lucide="external-link" class="w-4 h-4"></i> Buka Aplikasi
+      </a>
+      <button onclick="window.print()" class="px-4 py-2 rounded-xl bg-[#C86A32] hover:bg-[#B05724] text-white text-xs font-extrabold flex items-center gap-2 shadow-md shadow-[#C86A32]/25 cursor-pointer transition-all">
+        <i data-lucide="printer" class="w-4 h-4"></i> Cetak / Simpan PDF
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="max-w-4xl mx-auto space-y-6">
+
+    <!-- Hero Card -->
+    <section class="card bg-[#231B18] text-white p-8 rounded-3xl shadow-xl border border-[#362B26] relative overflow-hidden">
+      <div class="relative z-10 space-y-3">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#362B26] text-[#C86A32] text-xs font-extrabold border border-[#483A33]">
+          <i data-lucide="shield-check" class="w-3.5 h-3.5"></i> STANDAR UKK BNSP 2026
+        </div>
+        <h2 class="text-2xl sm:text-3xl font-black tracking-tight">Cheat Sheet & Panduan Lengkap Asesor UKK</h2>
+        <p class="text-xs sm:text-sm text-[#B8ADA4] leading-relaxed max-w-2xl">
+          Dokumen panduan pertanggungjawaban kode program, penjelasan arsitektur, simulasi modifikasi langsung (*live coding*), dan jawaban ideal terhadap pertanyaan asesor untuk meraih predikat <strong>Kompeten Maksimal (A+)</strong>.
+        </p>
+      </div>
+    </section>
+
+    <!-- BAB 1: Arsitektur & Struktur Folder -->
+    <section class="card bg-white p-6 sm:p-8 rounded-3xl border border-[#E7DFD3] shadow-sm space-y-5">
+      <div class="flex items-center gap-3 border-b border-[#E7DFD3] pb-4">
+        <div class="w-8 h-8 rounded-xl bg-[#FAF0E7] text-[#C86A32] flex items-center justify-center font-bold">1</div>
+        <h3 class="text-lg font-black text-[#1E1815]">Arsitektur Kode & Struktur Modular (*Separation of Concerns*)</h3>
+      </div>
+      
+      <p class="text-xs text-[#7A6F66] leading-relaxed">
+        Aplikasi dibangun menggunakan pola arsitektur terpisah (*Clean Modular Architecture*) agar memenuhi unit kompetensi <strong>J.620100.016.01</strong> (*Guidelines & Best Practices*) dan <strong>J.620100.017.02</strong> (*Pemrograman Terstruktur*).
+      </p>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+        <div class="p-4 rounded-2xl bg-[#FAF8F5] border border-[#E7DFD3] space-y-1">
+          <p class="font-bold text-[#1E1815] flex items-center gap-1.5"><i data-lucide="calculator" class="w-4 h-4 text-[#C86A32]"></i> src/helpers/kalkulator.js</p>
+          <p class="text-[#7A6F66]">Fungsi matematika murni (*Pure Functions*) tanpa dependensi DOM/DB, sehingga 100% mudah diuji dengan Jest.</p>
+        </div>
+        <div class="p-4 rounded-2xl bg-[#FAF8F5] border border-[#E7DFD3] space-y-1">
+          <p class="font-bold text-[#1E1815] flex items-center gap-1.5"><i data-lucide="database" class="w-4 h-4 text-[#2E7D5B]"></i> src/config/db.js</p>
+          <p class="text-[#7A6F66]">Koneksi MySQL Pool (10 sambungan paralel) menggunakan <code>mysql2/promise</code> untuk performa tinggi.</p>
+        </div>
+        <div class="p-4 rounded-2xl bg-[#FAF8F5] border border-[#E7DFD3] space-y-1">
+          <p class="font-bold text-[#1E1815] flex items-center gap-1.5"><i data-lucide="server" class="w-4 h-4 text-[#C86A32]"></i> src/routes/api.js</p>
+          <p class="text-[#7A6F66]">Layer REST API terpusat untuk CRUD menu, member, karyawan, autentikasi, dan transaksi ACID.</p>
+        </div>
+        <div class="p-4 rounded-2xl bg-[#FAF8F5] border border-[#E7DFD3] space-y-1">
+          <p class="font-bold text-[#1E1815] flex items-center gap-1.5"><i data-lucide="monitor" class="w-4 h-4 text-[#9A5B13]"></i> public/index.html (SPA)</p>
+          <p class="text-[#7A6F66]">Antarmuka kasir cepat tanpa reload browser (*Single Page App*), Chart.js, dan struk 58mm.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- BAB 2: Logika Finansial MUK UKK -->
+    <section class="card bg-white p-6 sm:p-8 rounded-3xl border border-[#E7DFD3] shadow-sm space-y-5">
+      <div class="flex items-center gap-3 border-b border-[#E7DFD3] pb-4">
+        <div class="w-8 h-8 rounded-xl bg-[#FAF0E7] text-[#C86A32] flex items-center justify-center font-bold">2</div>
+        <h3 class="text-lg font-black text-[#1E1815]">Logika Perhitungan Pajak PB1 & Diskon Bertingkat (Slide 5 MUK)</h3>
+      </div>
+
+      <div class="p-4 rounded-2xl bg-[#FAF0E7] border border-[#E8D0C0] space-y-2 text-xs">
+        <p class="font-extrabold text-[#C86A32]">🎯 Kunci Jawaban Wajib Dihafal ke Asesor:</p>
+        <p class="text-[#1E1815] leading-relaxed">
+          <em>"Pajak restoran PB1 10% dihitung dari <strong>DPP (Dasar Pengenaan Pajak)</strong>, yaitu nilai belanja bersih setelah dikurangi diskon, bukan dari subtotal kotor. Hal ini sesuai dengan Undang-Undang Perpajakan Daerah dan skenario MUK Kasir."</em>
+        </p>
+      </div>
+
+      <!-- Tabel Rumus -->
+      <div class="overflow-x-auto border border-[#E7DFD3] rounded-2xl text-xs">
+        <table class="w-full text-left">
+          <thead class="bg-[#FAF8F5] border-b border-[#E7DFD3] text-[#7A6F66] font-bold">
+            <tr>
+              <th class="p-3">Komponen</th>
+              <th class="p-3">Rumus Perhitungan</th>
+              <th class="p-3">Contoh Skenario MUK (Slide 5)</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-[#E7DFD3]">
+            <tr>
+              <td class="p-3 font-bold">Subtotal Kotor</td>
+              <td class="p-3"><code>Σ (harga × qty)</code></td>
+              <td class="p-3">Nasi Goreng (25k) + Ayam Bakar (28k) + Es Teh (5k) = <strong>Rp58.000</strong></td>
+            </tr>
+            <tr>
+              <td class="p-3 font-bold">Diskon Bertingkat</td>
+              <td class="p-3">≥200k (15%), ≥50k (10%), &lt;50k (0%)</td>
+              <td class="p-3">Subtotal Rp58.000 masuk Tier 1 (10%) = <strong>-Rp5.800</strong></td>
+            </tr>
+            <tr>
+              <td class="p-3 font-bold">Diskon Member</td>
+              <td class="p-3">Pelanggan terdaftar: ekstra +5%</td>
+              <td class="p-3">Jika non-member: 0%, Jika member: +5%</td>
+            </tr>
+            <tr>
+              <td class="p-3 font-bold text-[#C86A32]">DPP (Dasar Pajak)</td>
+              <td class="p-3"><code>Subtotal - Total Diskon</code></td>
+              <td class="p-3">Rp58.000 - Rp5.800 = <strong>Rp52.200</strong></td>
+            </tr>
+            <tr>
+              <td class="p-3 font-bold text-[#2E7D5B]">Pajak Restoran PB1</td>
+              <td class="p-3"><code>DPP × 10%</code></td>
+              <td class="p-3">Rp52.200 × 10% = <strong>Rp5.220</strong></td>
+            </tr>
+            <tr class="bg-[#FAF0E7]/60">
+              <td class="p-3 font-black text-sm text-[#C86A32]">Total Akhir Bayar</td>
+              <td class="p-3 font-bold"><code>DPP + Pajak PB1</code></td>
+              <td class="p-3 font-black text-sm text-[#C86A32]">Rp52.200 + Rp5.220 = <strong>Rp57.420</strong></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- BAB 3: Modifikasi Live Coding -->
+    <section class="card bg-white p-6 sm:p-8 rounded-3xl border border-[#E7DFD3] shadow-sm space-y-5">
+      <div class="flex items-center gap-3 border-b border-[#E7DFD3] pb-4">
+        <div class="w-8 h-8 rounded-xl bg-[#FAF0E7] text-[#C86A32] flex items-center justify-center font-bold">3</div>
+        <h3 class="text-lg font-black text-[#1E1815]">Panduan Modifikasi Kode Langsung (*Live Coding*)</h3>
+      </div>
+
+      <div class="space-y-4 text-xs">
+        <div class="p-4 rounded-2xl bg-[#FAF8F5] border border-[#E7DFD3] space-y-2">
+          <p class="font-extrabold text-[#1E1815]">Skenario A: Asesor meminta mengubah batas atau persen diskon</p>
+          <p class="text-[#7A6F66]">Buka berkas <code>src/helpers/kalkulator.js</code> baris 45-54:</p>
+          <pre class="p-3 rounded-xl bg-[#231B18] text-white text-[11px] overflow-x-auto">function hitungDiskonBertingkatPersen(subtotal) {
+  const nominal = Number(subtotal) || 0;
+  if (nominal >= 100000) return 20; // Ubah ambang atau persentase di sini
+  if (nominal >= 50000) return 10;
+  return 0;
+}</pre>
+        </div>
+
+        <div class="p-4 rounded-2xl bg-[#FAF8F5] border border-[#E7DFD3] space-y-2">
+          <p class="font-extrabold text-[#1E1815]">Skenario B: Asesor meminta mengubah tarif pajak (misal 11% PPN)</p>
+          <p class="text-[#7A6F66]">Buka berkas <code>src/helpers/kalkulator.js</code> baris 85:</p>
+          <pre class="p-3 rounded-xl bg-[#231B18] text-white text-[11px] overflow-x-auto">function hitungPajak10(dpp) {
+  return (Number(dpp) || 0) * 0.11; // Ganti 0.10 menjadi 0.11
+}</pre>
+        </div>
+
+        <div class="p-4 rounded-2xl bg-[#FAF8F5] border border-[#E7DFD3] space-y-2">
+          <p class="font-extrabold text-[#1E1815]">Skenario C: Menjalankan pengujian unit otomatis Jest di terminal</p>
+          <p class="text-[#7A6F66]">Buka terminal VS Code di folder <code>PoS Kasir MoonCafe</code> dan ketikkan:</p>
+          <pre class="p-3 rounded-xl bg-[#231B18] text-[#2E7D5B] text-[11px]">npm test</pre>
+          <p class="text-[#7A6F66]">Output: <strong>13 passed, 13 total (100% PASSED)</strong> membuktikan pemenuhan unit BNSP J.620100.033.02.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- BAB 4: Tanya Jawab Asesor -->
+    <section class="card bg-white p-6 sm:p-8 rounded-3xl border border-[#E7DFD3] shadow-sm space-y-5">
+      <div class="flex items-center gap-3 border-b border-[#E7DFD3] pb-4">
+        <div class="w-8 h-8 rounded-xl bg-[#FAF0E7] text-[#C86A32] flex items-center justify-center font-bold">4</div>
+        <h3 class="text-lg font-black text-[#1E1815]">Pertanyaan Kritis Asesor & Jawaban Ideal</h3>
+      </div>
+
+      <div class="space-y-3 text-xs">
+        <details class="p-4 rounded-2xl bg-[#FAF8F5] border border-[#E7DFD3] group" open>
+          <summary class="font-bold text-[#1E1815] cursor-pointer flex items-center justify-between">
+            <span>1. Kenapa transaksi checkout menggunakan Database Transaction (ACID)?</span>
+            <i data-lucide="chevron-down" class="w-4 h-4 text-[#7A6F66]"></i>
+          </summary>
+          <p class="mt-2 text-[#7A6F66] leading-relaxed">
+            Karena transaksi melibatkan multiple query (simpan header nota, simpan detail item, dan potong stok). Dengan <code>beginTransaction()</code>, <code>commit()</code>, dan <code>rollback()</code>, jika salah satu tahap gagal (misal stok kurang atau koneksi putus), sistem membatalkan seluruh perubahan ke kondisi awal. Hal ini menjamin integritas data (ACID).
+          </p>
+        </details>
+
+        <details class="p-4 rounded-2xl bg-[#FAF8F5] border border-[#E7DFD3] group">
+          <summary class="font-bold text-[#1E1815] cursor-pointer flex items-center justify-between">
+            <span>2. Jelaskan relasi tabel transaksi dan produk!</span>
+            <i data-lucide="chevron-down" class="w-4 h-4 text-[#7A6F66]"></i>
+          </summary>
+          <p class="mt-2 text-[#7A6F66] leading-relaxed">
+            Relasinya adalah Many-to-Many ($M:N$). Satu nota transaksi bisa membeli banyak produk, dan satu produk bisa dibeli di banyak transaksi. Untuk menghindari redundansi data dan memenuhi normalisasi 3NF, dibuat tabel pivot <code>detail_transaksi</code> yang menyimpan <code>id_transaksi</code>, <code>id_produk</code>, <code>qty</code>, dan <code>harga_satuan</code> riil saat transaksi terjadi.
+          </p>
+        </details>
+
+        <details class="p-4 rounded-2xl bg-[#FAF8F5] border border-[#E7DFD3] group">
+          <summary class="font-bold text-[#1E1815] cursor-pointer flex items-center justify-between">
+            <span>3. Bagaimana sistem mencegah menu terhapus jika sudah pernah dibeli pelanggan?</span>
+            <i data-lucide="chevron-down" class="w-4 h-4 text-[#7A6F66]"></i>
+          </summary>
+          <p class="mt-2 text-[#7A6F66] leading-relaxed">
+            Pada endpoint <code>DELETE /api/menu/:id</code>, backend mengecek apakah ID produk ada di tabel <code>detail_transaksi</code>. Jika ditemukan catatan transaksi, penghapusan ditolak dengan status HTTP 400 dan pesan edukatif menyarankan mengubah stok menjadi 0 agar audit finansial tidak rusak.
+          </p>
+        </details>
+
+        <details class="p-4 rounded-2xl bg-[#FAF8F5] border border-[#E7DFD3] group">
+          <summary class="font-bold text-[#1E1815] cursor-pointer flex items-center justify-between">
+            <span>4. Mengapa antarmuka Kasir dan Admin dipisahkan secara eksklusif?</span>
+            <i data-lucide="chevron-down" class="w-4 h-4 text-[#7A6F66]"></i>
+          </summary>
+          <p class="mt-2 text-[#7A6F66] leading-relaxed">
+            Menerapkan prinsip Role-Based Access Control (RBAC). Kasir berfokus pada kecepatan transaksi di kasir (katalog, pesanan, riwayat nota), sehingga laporan keuangan dan data akun pegawai disembunyikan. Sebaliknya, Administrator bertugas mengawasi performa bisnis toko, laporan pajak, dan manajemen karyawan tanpa perlu dibebani layar kasir meja depan.
+          </p>
+        </details>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="text-center py-6 text-xs text-[#7A6F66] border-t border-[#E7DFD3]">
+      <p>&copy; 2026 PoS Kasir MoonCafe • Disiapkan untuk Uji Kompetensi Keahlian (UKK) Pemrogram Junior SMK Telkom Purwokerto.</p>
+    </footer>
+
+  </main>
+
+  <script>
+    lucide.createIcons();
+  </script>
+</body>
+</html>

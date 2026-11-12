@@ -3343,7 +3343,7 @@
           <td class="py-3.5 px-4 text-[#7A6F66] tabular-nums">${m.no_telp || '-'}</td>
           <td class="py-3.5 px-4 text-center">
             <span class="px-2.5 py-0.5 rounded-full bg-[#EAF4EE] text-[#2E7D5B] font-bold text-[10px] border border-[#D4EADB]">
-              Diskon ${m.diskon_persen}%
+              Diskon ${parseFloat(m.diskon_persen) || 5}%
             </span>
           </td>
           <td class="py-3.5 px-4 text-center font-bold text-[#9A5B13] tabular-nums">${m.poin_loyalitas || 0} Poin</td>

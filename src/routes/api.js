@@ -473,7 +473,7 @@ router.delete('/menu/:id', async (req, res) => {
  */
 router.get('/members', async (req, res) => {
   try {
-    const [rows] = await pool.query(`SELECT * FROM members ORDER BY id_member DESC`);
+    const [rows] = await pool.query(`SELECT *, 5.00 AS diskon_persen FROM members ORDER BY id_member DESC`);
     res.json({ success: true, data: rows });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
@@ -500,14 +500,14 @@ router.post('/members', async (req, res) => {
     const kode_member = req.body.kode_member?.trim() || `MBR-${nextNum}`;
 
     const [insertResult] = await pool.query(
-      `INSERT INTO members (kode_member, nama_member, no_telp, diskon_persen, poin_loyalitas) VALUES (?, ?, ?, 5.00, 0)`,
+      `INSERT INTO members (kode_member, nama_member, no_telp, poin_loyalitas, tgl_bergabung) VALUES (?, ?, ?, 0, CURDATE())`,
       [kode_member, nama_member.trim(), no_telp ? no_telp.trim() : null]
     );
 
     res.status(201).json({
       success: true,
       message: 'Member berhasil ditambahkan!',
-      data: { id_member: insertResult.insertId, kode_member, nama_member, no_telp, diskon_persen: 5.00 }
+      data: { id_member: insertResult.insertId, kode_member, nama_member, no_telp, diskon_persen: 5.00, poin_loyalitas: 0 }
     });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
@@ -543,7 +543,7 @@ router.get('/members/search', async (req, res) => {
     const keyword = req.query.q || '';
     if (!keyword.trim()) return res.json({ success: true, data: [] });
     const query = `
-      SELECT id_member, kode_member, nama_member, no_telp, poin_loyalitas
+      SELECT id_member, kode_member, nama_member, no_telp, poin_loyalitas, 5.00 AS diskon_persen
       FROM members
       WHERE kode_member LIKE ? OR nama_member LIKE ? OR no_telp LIKE ?
       LIMIT 10
